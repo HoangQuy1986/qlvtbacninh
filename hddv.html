@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Xuất Hợp Đồng Dịch Vụ</title>
+    <title>Hợp Đồng Dịch Vụ HTX</title>
+    
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         * {
@@ -18,443 +19,346 @@
             box-sizing: border-box;
         }
 
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            color: #1e293b;
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
             line-height: 1.6;
-        }
-
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 4px 20px rgba(22, 163, 74, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.05"/><circle cx="50" cy="50" r="0.5" fill="%23ffffff" opacity="0.03"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.1;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-title {
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .header-title h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-subtitle {
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
-            opacity: 0.9;
-            font-weight: 400;
-            text-align: center;
-        }
-
-        .emblem {
-            position: absolute;
-            left: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 3rem;
-            opacity: 0.2;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        /* Action Panel */
-        .action-panel {
             background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-
-        .panel-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .panel-header i {
-            font-size: 1.5rem;
-            color: #16a34a;
-            margin-right: 1rem;
-        }
-
-        .panel-header h2 {
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .action-button {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
             position: relative;
-            overflow: hidden;
         }
 
-        .action-button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .action-button:not(:disabled)::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .action-button:not(:disabled):hover::before {
-            left: 100%;
-        }
-
-        .action-button:not(:disabled):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.3);
-        }
-
-        .action-button:not(:disabled):active {
-            transform: translateY(0);
-        }
-
-        .action-button i {
-            font-size: 1.1rem;
-        }
-
-        /* Info Panel */
-        .info-panel {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-
-        .info-grid {
-            display: grid;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .info-section {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .section-header {
-            background: #f8fafc;
-            padding: 1rem 1.25rem;
-            font-weight: 600;
-            color: #1e40af;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .info-item {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid #f1f5f9;
-            transition: all 0.3s ease;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-item:hover {
-            background: #f8fafc;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #475569;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .info-value {
-            color: #334155;
-            font-weight: 500;
-            word-break: break-word;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #64748b;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
-        }
-
-        .error-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #dc2626;
-        }
-
-        .error-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.7;
-        }
-
-        /* Loading overlay */
-        .loading-overlay {
+        .button-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(4px);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
         }
 
-        .loading-content {
-            background: white;
-            padding: 2rem 3rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            max-width: 90%;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #e2e8f0;
-            border-top: 3px solid #16a34a;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loading-text {
-            color: #1e293b;
-            font-weight: 500;
-            font-size: 1.1rem;
-        }
-
-        /* Status indicator */
-        .status-indicator {
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-top: 0.5rem;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
         }
 
-        .status-ready {
-            background: #dcfce7;
-            color: #166534;
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
         }
 
-        .status-error {
-            background: #fecaca;
-            color: #dc2626;
+        .print-button:hover {
+            background-color: #45a049;
         }
 
-        .status-loading {
-            background: #fef3c7;
-            color: #92400e;
+        .export-button {
+            background-color: #2b579a;
+            color: white;
         }
 
-        .status-indicator i {
-            font-size: 0.75rem;
+        .export-button:hover {
+            background-color: #1e3f6f;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 0 1rem;
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Document styling */
+        .document-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .country-info {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .motto {
+            font-size: 13px;
+            text-decoration: underline;
+            margin-bottom: 30px;
+        }
+
+        .contract-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .contract-subtitle {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .contract-number {
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .legal-basis {
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .today-info {
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .party-section {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .party-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .party-info {
+            margin-left: 10px;
+            line-height: 1.8;
+        }
+
+        .vehicle-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .vehicle-table th,
+        .vehicle-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .vehicle-table th {
+            font-weight: bold;
+        }
+
+        .agreement-text {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .article-title {
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            text-align: center;
+        }
+
+        .article-content {
+            margin-bottom: 15px;
+            text-indent: 20px;
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .signature-box {
+            width: 45%;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 80px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
             }
 
-            .emblem {
+            .button-container {
                 display: none;
             }
-
-            .container {
-                padding: 1rem;
-            }
-
-            .action-panel,
-            .info-panel {
-                padding: 1.5rem 1rem;
-            }
-
-            .button-group {
-                grid-template-columns: 1fr;
-            }
-
-            .panel-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-
-            .panel-header i {
-                margin-right: 0;
-            }
-
-            .loading-content {
-                padding: 1.5rem 2rem;
-            }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
             }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .action-panel,
-        .info-panel {
-            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .info-panel {
-            animation-delay: 0.1s;
         }
     </style>
 </head>
 
 <body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text" id="loading-text">Đang tải dữ liệu...</div>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Content -->
+    <div class="document-header">
+        <div class="country-info">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+        <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
+        <div style="height: 20px;"></div>
+        
+        <div class="contract-title">HỢP ĐỒNG DỊCH VỤ</div>
+        <div class="contract-subtitle">Giữa <span id="tendonvi">{Tendonvi}</span> và Thành viên HTX</div>
+        <div class="contract-number">(Số: <span id="sovanban">{SoVanBan}</span>)</div>
+    </div>
+
+    <div class="legal-basis">
+        Căn cứ Luật Hợp tác xã số 17/2023/QH15;<br>
+        Căn cứ Điều lệ Hợp tác xã;<br>
+        Căn cứ nhu cầu và khả năng của các bên.
+    </div>
+
+    <div class="today-info">
+        Hôm nay, ngày <span id="ngayky">{NgayKy}</span> tại Văn phòng <span id="tendonvi2">{Tendonvi}</span> (Địa chỉ: <span id="diachidaydu">{Diachidaydu}</span>), chúng tôi gồm:
+    </div>
+
+    <div class="party-section">
+        <div class="party-title">I. <span id="tendonvi3">{Tendonvi}</span> (Bên A)</div>
+        <div class="party-info">
+            - Đại diện: <span id="nguoidaidien">{Nguoidaidien}</span>;<br>
+            - Chức vụ: Giám đốc;<br>
+            - Địa chỉ: <span id="diachidaydu2">{Diachidaydu}</span>;<br>
+            - Số điện thoại: <span id="sodt">{SoDT}</span>;<br>
+            - Mã số thuế: <span id="masothue">{Masothue}</span>;<br>
+            - Số tài khoản: <span id="sotk">{SoTK}</span> - Tại Ngân hàng: <span id="tainganhang">{TaiNganhang}</span>.
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="emblem">
-            <i class="fas fa-file-contract"></i>
-        </div>
-        <div class="header-content">
-            <div class="header-title">
-                <h1>Xuất Hợp Đồng Dịch Vụ</h1>
-                <div class="header-subtitle">Hệ thống xuất tài liệu hợp đồng dịch vụ HTX</div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Action Panel -->
-        <div class="action-panel">
-            <div class="panel-header">
-                <i class="fas fa-download"></i>
-                <h2>Xuất Tài Liệu</h2>
-            </div>
-            <div class="button-group">
-                <button class="action-button" id="export-button" onclick="exportToWordTemplate()" disabled>
-                    <i class="fas fa-file-word"></i>
-                    <span>Xuất Hợp Đồng Word</span>
-                </button>
-            </div>
-            <div id="status-indicator" class="status-indicator status-loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                <span>Đang tải dữ liệu...</span>
-            </div>
+    <div class="party-section">
+        <div class="party-title">II. <span id="hoten">{Hoten}</span> (Bên B - Thành viên hợp tác xã)</div>
+        <div class="party-info">
+            Số Căn cước công dân: <span id="socccd">{SoCCCD}</span>.<br>
+            Địa chỉ: <span id="diachns">{DiachNhanSu}</span>.<br>
+            Là chủ sở hữu phương tiện:
         </div>
 
-        <!-- Info Panel -->
-        <div class="info-panel">
-            <div class="panel-header">
-                <i class="fas fa-info-circle"></i>
-                <h2>Thông Tin Hợp Đồng</h2>
-            </div>
+        <table class="vehicle-table">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Biển số</th>
+                    <th>Số khung</th>
+                    <th>Số máy</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td id="ref-xe">{Ref_Xe}</td>
+                    <td id="sokhung">{Sokhung}</td>
+                    <td id="somay">{Somay}</td>
+                    <td id="ghichu">{Ghichu}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-            <div id="param-display">
-                <div class="empty-state">
-                    <i class="fas fa-folder-open"></i>
-                    <p>Đang tải thông tin hồ sơ...</p>
-                </div>
-            </div>
+    <div class="agreement-text">
+        Hai bên cùng bàn bạc, thống nhất và cùng đồng ý ký kết hợp đồng dịch vụ giữa hợp tác xã và thành viên HTX với các điều khoản sau:
+        
+        <div class="article-title">Điều 1. Nội dung hợp đồng</div>
+        <div class="article-content">
+            Kể từ ngày Hợp đồng này có hiệu lực Bên B giao toàn quyền quản lý, sử dụng phương tiện <span id="ref-xe2">{Ref_Xe}</span> cho Bên A để thực hiện hoạt động kinh doanh vận tải bằng xe ô tô theo quy định của pháp luật.
+        </div>
+        <div class="article-content">
+            Thời hạn hợp đồng: Không thời hạn và kết thúc khi Bên B không còn là thành viên hợp tác xã (HTX) theo quy định của pháp luật và Điều lệ HTX.
+        </div>
+
+        <div class="article-title">Điều 2. Giá trị hợp đồng và phương thức thanh toán hợp đồng</div>
+        <div class="article-content">
+            1. Giá trị hợp đồng: Thành viên HTX được hưởng lợi nhuận từ lợi nhuận của việc kinh doanh vận tải bằng xe ô tô của phương tiện <span id="ref-xe3">{Ref_Xe}</span> theo quy định tại Điều lệ HTX.
+        </div>
+        <div class="article-content">
+            2. Phương thức thanh toán: Tiền mặt (hoặc chuyển khoản) trước ngày 05 của tháng tiếp theo sau.
+        </div>
+
+        <div class="article-title">Điều 3: Trách nhiệm, quyền hạn Bên B</div>
+        <div class="article-content">
+            1. Trách nhiệm của bên B:<br>
+            a) Giao xe và toàn bộ giấy tờ liên quan đến xe <span id="ref-xe4">{Ref_Xe}</span> ngay sau khi Hợp đồng có hiệu lực. Giấy tờ liên quan đến xe gồm: Giấy chứng nhận đăng ký xe (hoặc giấy tờ có giá trị tương đương), giấy chứng nhận kiểm định chất lượng an toàn kỹ thuật và bảo vệ môi trường, giấy chứng nhận bảo hiểm trách nhiệm xe cơ giới và các giấy tờ khác có liên quan;<br>
+            b) Chịu trách nhiệm pháp lý về nguồn gốc và quyền sở hữu của xe;<br>
+            c) Chấp hành các quy định khác tại Điều lệ của HTX.
+        </div>
+        <div class="article-content">
+            2. Quyền hạn của Bên B<br>
+            a) Được phần phối lợi nhuận từ việc hoạt động kinh doanh vận tải bằng xe ô tô của phương tiền <span id="ref-xe5">{Ref_Xe}</span> theo quy định của Điều lệ HTX;<br>
+            b) Được ra khỏi hợp tác xã theo quy định của Điều lệ HTX;<br>
+            c) Khiếu nại, tố cáo, khởi kiện theo quy định của pháp luật;<br>
+            d) Quyền khác theo quy định pháp luật và Điều lệ HTX.
+        </div>
+
+        <div class="article-title">Điều 4. Trách nhiệm, quyền hạn của Bên A</div>
+        <div class="article-content">
+            1. Trách nhiệm<br>
+            a) Kiểm tra, xác minh tính hợp pháp về nguồn gốc và quyền sở hữu của Bên B đối với phương tiện <span id="ref-xe6">{Ref_Xe}</span> và tình trạng kỹ thuật của phương tiện trước khi thực hiện hoạt động kinh doanh;<br>
+            b) Sử dụng phương tiện <span id="ref-xe7">{Ref_Xe}</span> vào đúng mục đích kinh doanh vận tải bằng ô tô được cơ quan có thẩm quyền cho phép;<br>
+            c) Có trách nhiệm xây dựng và thực hiện kế hoạch bảo dưỡng, sửa chữa, thay thế hệ thống, tổng thành (nếu có) để phương tiện đảm bảo an toàn kỹ thuật và bảo vệ môi trường quy định;...
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-title">ĐẠI DIỆN BÊN A</div>
+            <div class="signature-name" id="nguoidaidien2">{Nguoidaidien}</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-title">ĐẠI DIỆN BÊN B</div>
+            <div class="signature-name" id="hoten2">{Hoten}</div>
         </div>
     </div>
 
@@ -465,11 +369,7 @@
         const region = 'www';
 
         // Biến toàn cục để lưu dữ liệu
-        let globalData = null;
-        let hosoData = null;
-        let donviData = null;
-        let xeData = null;
-        let nhansuData = null;
+        let globalContractData = null;
 
         // Function to get IDHoSo from URL
         function getIDHoSoFromURL() {
@@ -511,106 +411,9 @@
             }
         }
 
-        // Parse date từ định dạng yyyy-mm-dd hoặc dd/mm/yyyy
-        function parseDate(dateString) {
-            if (!dateString) return new Date();
-
-            // Nếu là định dạng yyyy-mm-dd (từ AppSheet)
-            if (dateString.includes('-') && dateString.length === 10) {
-                return new Date(dateString);
-            }
-
-            // Nếu là định dạng dd/mm/yyyy (từ AppSheet) - SỬA PHẦN NÀY
-            if (dateString.includes('/')) {
-                const parts = dateString.split('/');
-                if (parts.length === 3) {
-                    // Chú ý thứ tự: parts[0] = day, parts[1] = month, parts[2] = year
-                    const day = parseInt(parts[0]);
-                    const month = parseInt(parts[1]) - 1; // JavaScript month bắt đầu từ 0
-                    const year = parseInt(parts[2]);
-
-                    // Tạo Date object đúng cách
-                    return new Date(year, month, day);
-                }
-            }
-
-            return new Date(dateString);
-        }
-
-        // Format ngày cho template Word - XỬ LÝ ĐỊNH DẠNG MM/dd/yyyy
-        function formatDateForWord(dateString) {
-            console.log('🔍 formatDateForWord - Input:', dateString, typeof dateString);
-
-            if (!dateString || dateString === 'Không có thông tin' || dateString === '') {
-                console.log('❌ No date data, returning default');
-                return 'Không có thông tin';
-            }
-
-            let day, month, year;
-
-            // Nếu là chuỗi có dấu / - XỬ LÝ ĐỊNH DẠNG MM/dd/yyyy từ AppSheet
-            if (typeof dateString === 'string' && dateString.includes('/')) {
-                console.log('📅 Processing MM/dd/yyyy format:', dateString);
-                const parts = dateString.split('/');
-                if (parts.length === 3) {
-                    month = parseInt(parts[0]); // Tháng ở vị trí đầu (MM)
-                    day = parseInt(parts[1]);   // Ngày ở vị trí giữa (dd)
-                    year = parseInt(parts[2]);  // Năm ở vị trí cuối (yyyy)
-                }
-            }
-            // Nếu là chuỗi có dấu - (yyyy-mm-dd)
-            else if (typeof dateString === 'string' && dateString.includes('-')) {
-                console.log('📅 Processing yyyy-mm-dd format:', dateString);
-                const parts = dateString.split('-');
-                if (parts.length === 3) {
-                    year = parseInt(parts[0]);
-                    month = parseInt(parts[1]);
-                    day = parseInt(parts[2]);
-                }
-            }
-            // Nếu là Date object
-            else if (dateString instanceof Date) {
-                console.log('📅 Processing Date object:', dateString);
-                day = dateString.getDate();
-                month = dateString.getMonth() + 1;
-                year = dateString.getFullYear();
-            }
-            else {
-                console.log('❓ Unknown format, returning as is:', dateString);
-                return dateString.toString();
-            }
-
-            // Validate parsed values
-            if (!day || !month || !year || isNaN(day) || isNaN(month) || isNaN(year)) {
-                console.log('❌ Invalid parsed values:', { day, month, year });
-                return dateString.toString();
-            }
-
-            console.log('✅ Parsed values (corrected):', { day, month, year });
-
-            // Format theo quy tắc dd/MM/yyyy Việt Nam
-            const formattedDay = day.toString().padStart(2, '0'); // Luôn 2 chữ số
-
-            // Quy tắc tháng: chỉ tháng 1,2 có số 0 đằng trước
-            let formattedMonth;
-            if (month === 1 || month === 2) {
-                formattedMonth = month.toString().padStart(2, '0'); // 01, 02
-            } else {
-                formattedMonth = month.toString(); // 3, 4, 5, ..., 12
-            }
-
-            const result = `${formattedDay}/${formattedMonth}/${year}`;
-            console.log('🎯 Final result:', result);
-
-            return result;
-        }
-
-        // Format ngày dài cho template Word
+        // Format ngày dài cho hiển thị
         function formatDateLongForWord(dateString) {
-            console.log('🔍 formatDateLongForWord - Input:', dateString, typeof dateString);
-
-            if (!dateString || dateString === 'Không có thông tin' || dateString === '') {
-                console.log('❌ No date data, using today');
+            if (!dateString || dateString === '' || dateString === '') {
                 const today = new Date();
                 const day = today.getDate().toString().padStart(2, '0');
                 const month = today.getMonth() + 1;
@@ -623,14 +426,11 @@
                     formattedMonth = month.toString();
                 }
 
-                const result = `${day} tháng ${formattedMonth} năm ${year}`;
-                console.log('🎯 Today result:', result);
-                return result;
+                return `${day} tháng ${formattedMonth} năm ${year}`;
             }
 
             let day, month, year;
 
-            // XỬ LÝ ĐỊNH DẠNG MM/dd/yyyy từ AppSheet
             if (typeof dateString === 'string' && dateString.includes('/')) {
                 const parts = dateString.split('/');
                 if (parts.length === 3) {
@@ -650,12 +450,10 @@
                 month = dateString.getMonth() + 1;
                 year = dateString.getFullYear();
             } else {
-                console.log('❓ Unknown format in long date, returning as is');
                 return dateString.toString();
             }
 
             if (!day || !month || !year || isNaN(day) || isNaN(month) || isNaN(year)) {
-                console.log('❌ Invalid parsed values in long date:', { day, month, year });
                 return dateString.toString();
             }
 
@@ -668,25 +466,20 @@
                 formattedMonth = month.toString();
             }
 
-            const result = `${formattedDay} tháng ${formattedMonth} năm ${year}`;
-            console.log('🎯 Long format result:', result);
-            return result;
+            return `${formattedDay} tháng ${formattedMonth} năm ${year}`;
         }
 
         // Load data from AppSheet
         async function loadData() {
             try {
-                updateStatus('loading', 'Đang tải dữ liệu...');
-
                 const idHoSo = getIDHoSoFromURL();
-                console.log('🔍 ID từ URL:', idHoSo); // Debug
+                console.log('🔍 ID từ URL:', idHoSo);
 
                 if (!idHoSo) {
                     throw new Error('Không tìm thấy IDHoSo trong URL');
                 }
 
                 // Fetch dữ liệu từ các bảng
-                updateStatus('loading', 'Đang tải thông tin hồ sơ...');
                 const [hosoList, donviList, xeList, nhansuList] = await Promise.all([
                     fetchAppSheetData('HOSONHANSU', `Filter(HOSONHANSU, [IDHoSo] = "${idHoSo}")`),
                     fetchAppSheetData('THONGTINDONVI'),
@@ -694,247 +487,111 @@
                     fetchAppSheetData('THONGTINNHANSU')
                 ]);
 
-                console.log('Hoso data:', hosoList);
-                console.log('Donvi data:', donviList);
-                console.log('Xe data:', xeList);
-                console.log('Nhansu data:', nhansuList);
-
-                // Kiểm tra dữ liệu hồ sơ
                 if (!hosoList || hosoList.length === 0) {
                     throw new Error('Không tìm thấy hồ sơ với ID này');
                 }
 
-                console.log('🔍 Tìm kiếm ID:', idHoSo);
-                console.log('🔍 Các ID có sẵn:', hosoList.map(h => h.IDHoSo));
-
-                // Tìm record chính xác thay vì lấy record đầu tiên
-                hosoData = hosoList.find(item => item.IDHoSo === idHoSo);
-
+                const hosoData = hosoList.find(item => item.IDHoSo === idHoSo);
                 if (!hosoData) {
-                    const availableIDs = hosoList.map(h => h.IDHoSo).join(', ');
-                    throw new Error(`Không tìm thấy ID "${idHoSo}". Các ID có sẵn: ${availableIDs}`);
+                    throw new Error(`Không tìm thấy ID "${idHoSo}"`);
                 }
 
-                console.log('✅ Sử dụng hồ sơ:', hosoData);
-                donviData = donviList.length > 0 ? donviList[0] : {};
+                const donviData = donviList.length > 0 ? donviList[0] : {};
+                
+                // Tìm thông tin xe
+                const xeData = hosoData.Ref_Xe ? 
+                    xeList.find(x => x.Idxe === hosoData.Ref_Xe) || {} : {};
+                
+                // Tìm thông tin nhân sự
+                const nhansuData = hosoData.Ref_ThanhVien ? 
+                    nhansuList.find(n => n.IDNS === hosoData.Ref_ThanhVien) || {} : {};
 
-                // Tìm thông tin xe dựa trên Ref_Xe
-                if (hosoData.Ref_Xe) {
-                    const xe = xeList.find(x => x.Idxe === hosoData.Ref_Xe);
-                    xeData = xe || {};
-                } else {
-                    xeData = {};
-                }
-
-                // Tìm thông tin nhân sự dựa trên Ref_ThanhVien
-                if (hosoData.Ref_ThanhVien) {
-                    const nhansu = nhansuList.find(n => n.IDNS === hosoData.Ref_ThanhVien);
-                    nhansuData = nhansu || {};
-                } else {
-                    nhansuData = {};
-                }
-
-                // Tạo dữ liệu cho template
-                globalData = {
-                    // Thông tin từ HOSONHANSU
+                // Lưu dữ liệu cho xuất Word
+                globalContractData = {
                     IDHoSo: hosoData.IDHoSo || '',
-                    Ref_ThanhVien: hosoData.Ref_ThanhVien || '',
                     SoVanBan: hosoData.SoVanBan || '',
                     NgayKy: formatDateLongForWord(hosoData.NgayKy),
-                    NgayKy_Short: formatDateForWord(hosoData.NgayKy),
-                    NgayHieuLuc: formatDateForWord(hosoData.NgayHieuLuc),
-                    NgayHetHieuLuc: formatDateForWord(hosoData.NgayHetHieuLuc),
-                    TrangThaiHoSo: hosoData.TrangThaiHoSo || '',
-
-                    // Thông tin từ THONGTINDONVI
                     Tendonvi: donviData.Tendonvi || '',
                     Nguoidaidien: donviData.Nguoidaidien || '',
                     Diachidaydu: donviData.Diachi || '',
                     SoDT: donviData.SoDT || '',
-                    Email: donviData.Email || '',
                     Masothue: donviData.SogiayCNDKKD || '',
-                    SoTK: donviData.SoTK || '', // Thêm trường này nếu có
-                    TaiNganhang: donviData.TaiNganhang || '', // Thêm trường này nếu có
-
-                    // Thông tin từ THONGTINXE
+                    SoTK: donviData.SoTK || '',
+                    TaiNganhang: donviData.TaiNganhang || '',
+                    Hoten: nhansuData.Hoten || '',
+                    SoCCCD: nhansuData.NoCCCD || '',
+                    DiachNhanSu: nhansuData.Diachidaydu || '',
                     Ref_Xe: xeData.Bienso || '',
                     Sokhung: xeData.Sokhung || '',
                     Somay: xeData.Somay || '',
-                    Ghichu: xeData.Ghichu || '',
-
-                    // Thông tin từ THONGTINNHANSU
-                    Hoten: nhansuData.Hoten || '',
-                    SoCCCD: nhansuData.NoCCCD || '',
-                    Ngaysinh: formatDateForWord(nhansuData.Ngaysinh),
-                    Gioitinh: nhansuData.Gioitinh || '',
-                    DiachNhanSu: nhansuData.Diachidaydu || '',
-                    Chucvu: nhansuData.Chucvu || '',
-                    Trinhdo: nhansuData.Trinhdo || '',
-                    SodienthoaiNS: nhansuData.Sodienthoai || '',
-                    EmailNS: nhansuData.Email || ''
+                    Ghichu: xeData.Ghichu || ''
                 };
 
-                displayParameters();
-                updateStatus('ready', 'Dữ liệu đã sẵn sàng');
-                document.getElementById('export-button').disabled = false;
+                // Populate HTML với dữ liệu
+                populateHTML(globalContractData);
+                hideLoadingMessage();
 
             } catch (error) {
                 console.error('Error loading data:', error);
-                updateStatus('error', `Lỗi: ${error.message}`);
-                displayError(error.message);
+                hideLoadingMessage();
+                alert('Lỗi: ' + error.message);
             }
         }
 
-        // Update status indicator
-        function updateStatus(type, message) {
-            const statusEl = document.getElementById('status-indicator');
-            statusEl.className = `status-indicator status-${type}`;
-
-            let icon;
-            switch (type) {
-                case 'loading':
-                    icon = 'fas fa-spinner fa-spin';
-                    break;
-                case 'ready':
-                    icon = 'fas fa-check-circle';
-                    break;
-                case 'error':
-                    icon = 'fas fa-exclamation-circle';
-                    break;
-                default:
-                    icon = 'fas fa-info-circle';
-            }
-
-            statusEl.innerHTML = `<i class="${icon}"></i><span>${message}</span>`;
-        }
-
-        // Display parameters
-        function displayParameters() {
-            const paramDisplay = document.getElementById('param-display');
-
-            if (!globalData) {
-                paramDisplay.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Không có dữ liệu</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const sectionsData = [
-                {
-                    title: 'Thông Tin Hồ Sơ',
-                    fields: [
-                        { key: 'IDHoSo', label: 'ID Hồ Sơ' },
-                        { key: 'SoVanBan', label: 'Số Văn Bản' },
-                        { key: 'NgayKy_Short', label: 'Ngày Ký' },
-                        { key: 'NgayHieuLuc', label: 'Ngày Hiệu Lực' },
-                        { key: 'NgayHetHieuLuc', label: 'Ngày Hết Hiệu Lực' },
-                        { key: 'TrangThaiHoSo', label: 'Trạng Thái' }
-                    ]
-                },
-                {
-                    title: 'Thông Tin Đơn Vị (Bên A)',
-                    fields: [
-                        { key: 'Tendonvi', label: 'Tên Đơn Vị' },
-                        { key: 'Nguoidaidien', label: 'Người Đại Diện' },
-                        { key: 'Diachidaydu', label: 'Địa Chỉ' },
-                        { key: 'SoDT', label: 'Số Điện Thoại' },
-                        { key: 'Email', label: 'Email' },
-                        { key: 'Masothue', label: 'Mã Số Thuế' }
-                    ]
-                },
-                {
-                    title: 'Thông Tin Thành Viên (Bên B)',
-                    fields: [
-                        { key: 'Ref_ThanhVien', label: 'ID Thành Viên' },
-                        { key: 'Hoten', label: 'Họ Tên' },
-                        { key: 'SoCCCD', label: 'Số CCCD' },
-                        { key: 'Ngaysinh', label: 'Ngày Sinh' },
-                        { key: 'Gioitinh', label: 'Giới Tính' },
-                        { key: 'DiachNhanSu', label: 'Địa Chỉ' },
-                        { key: 'Chucvu', label: 'Chức Vụ' },
-                        { key: 'Trinhdo', label: 'Trình Độ' },
-                        { key: 'SodienthoaiNS', label: 'Số Điện Thoại' },
-                        { key: 'EmailNS', label: 'Email' }
-                    ]
-                },
-                {
-                    title: 'Thông Tin Xe',
-                    fields: [
-                        { key: 'Ref_Xe', label: 'Biển Số Xe' },
-                        { key: 'Sokhung', label: 'Số Khung' },
-                        { key: 'Somay', label: 'Số Máy' },
-                        { key: 'Ghichu', label: 'Ghi Chú' }
-                    ]
+        // Populate HTML with data
+        function populateHTML(data) {
+            // Helper function to safely set text content
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || '';
                 }
-            ];
+            };
 
-            let html = '<div class="info-grid">';
-
-            sectionsData.forEach(section => {
-                html += `
-                    <div class="info-section">
-                        <div class="section-header">${section.title}</div>
-                `;
-
-                section.fields.forEach(field => {
-                    const value = globalData[field.key] || 'Không có thông tin';
-                    html += `
-                        <div class="info-item">
-                            <div class="info-label">${field.label}</div>
-                            <div class="info-value">${value}</div>
-                        </div>
-                    `;
-                });
-
-                html += '</div>';
-            });
-
-            html += '</div>';
-            paramDisplay.innerHTML = html;
+            setText('tendonvi', data.Tendonvi);
+            setText('tendonvi2', data.Tendonvi);
+            setText('tendonvi3', data.Tendonvi);
+            setText('sovanban', data.SoVanBan);
+            setText('ngayky', data.NgayKy);
+            setText('diachidaydu', data.Diachidaydu);
+            setText('diachidaydu2', data.Diachidaydu);
+            setText('nguoidaidien', data.Nguoidaidien);
+            setText('nguoidaidien2', data.Nguoidaidien);
+            setText('sodt', data.SoDT);
+            setText('masothue', data.Masothue);
+            setText('sotk', data.SoTK);
+            setText('tainganhang', data.TaiNganhang);
+            setText('hoten', data.Hoten);
+            setText('hoten2', data.Hoten);
+            setText('socccd', data.SoCCCD);
+            setText('diachns', data.DiachNhanSu);
+            setText('ref-xe', data.Ref_Xe);
+            setText('ref-xe2', data.Ref_Xe);
+            setText('ref-xe3', data.Ref_Xe);
+            setText('ref-xe4', data.Ref_Xe);
+            setText('ref-xe5', data.Ref_Xe);
+            setText('ref-xe6', data.Ref_Xe);
+            setText('ref-xe7', data.Ref_Xe);
+            setText('sokhung', data.Sokhung);
+            setText('somay', data.Somay);
+            setText('ghichu', data.Ghichu);
         }
 
-        // Display error
-        function displayError(message) {
-            const paramDisplay = document.getElementById('param-display');
-            paramDisplay.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Lỗi: ${message}</p>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">Vui lòng kiểm tra lại IDHoSo trong URL</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;">
-                        Ví dụ: ?IDHoSo=HS001
-                    </p>
-                </div>
-            `;
-        }
-
-        // Export to Word using template
+        // Export to Word template
         async function exportToWordTemplate() {
             try {
-                if (!globalData) {
-                    alert('Không có dữ liệu để xuất. Vui lòng tải lại trang.');
+                if (!globalContractData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
                     return;
                 }
 
-                // Show loading
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('loading-text').textContent = 'Đang xử lý và xuất tài liệu...';
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
                 // URL template cho hợp đồng dịch vụ
-                // const templateUrl = 'templates/hddv_template.docx';
-                const templateUrl = 'https://hoangmv.github.io/templates/templates/hddv_template.docx';
-
-                let response;
-                try {
-                    response = await fetch(templateUrl);
-                } catch (error) {
-                    console.warn('Không thể tải template, sẽ tạo file Word đơn giản');
-                    return;
-                }
-
+                const templateUrl = 'https://hoangmv.github.io/templates/hddv_template.docx';
+                
+                const response = await fetch(templateUrl);
                 if (!response.ok) {
                     throw new Error('Không thể tải template Word');
                 }
@@ -946,9 +603,7 @@
                     linebreaks: true
                 });
 
-                // Set data cho template
-                console.log('Data for template:', globalData);
-                doc.setData(globalData);
+                doc.setData(globalContractData);
                 doc.render();
 
                 const blob = doc.getZip().generate({
@@ -956,16 +611,21 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `HopDongDichVu_${globalData.SoVanBan}_${globalData.Hoten || 'Document'}.docx`;
+                const fileName = `HopDongDichVu_${globalContractData.SoVanBan}_${globalContractData.Hoten || 'Document'}.docx`;
                 saveAs(blob, fileName);
+
+                hideLoadingMessage();
 
             } catch (error) {
                 console.error('Lỗi xuất file Word:', error);
                 alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
-            } finally {
-                // Hide loading
-                document.getElementById('loading-overlay').style.display = 'none';
+                hideLoadingMessage();
             }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
         }
 
         // Initialize application
@@ -973,28 +633,24 @@
             try {
                 const idHoSo = getIDHoSoFromURL();
                 if (!idHoSo) {
-                    updateStatus('error', 'Thiếu tham số IDHoSo trong URL');
-                    displayError('Vui lòng cung cấp IDHoSo trong URL. Ví dụ: ?IDHoSo=HS001');
+                    alert('Vui lòng cung cấp IDHoSo trong URL. Ví dụ: ?IDHoSo=HS001');
                     return;
                 }
-
                 await loadData();
             } catch (error) {
                 console.error('Initialization error:', error);
-                updateStatus('error', 'Lỗi khởi tạo ứng dụng');
-                displayError('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
+                alert('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
             }
         }
 
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', function () {
-            // Add slight delay for better UX
             setTimeout(() => {
                 initialize();
             }, 500);
         });
 
-
+        // Disable right-click and F12
         document.addEventListener('contextmenu', function (e) {
             e.preventDefault();
         }, false);
@@ -1013,12 +669,6 @@
                 return false;
             }
         };
-
-        // Add error handling for fetch failures
-        window.addEventListener('unhandledrejection', function (event) {
-            console.error('Unhandled promise rejection:', event.reason);
-            updateStatus('error', 'Lỗi kết nối mạng');
-        });
     </script>
 </body>
 
