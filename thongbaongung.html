@@ -483,8 +483,10 @@
 
                 const donviData = donviList.length > 0 ? donviList[0] : {};
 
+                const filteredDsxeNgungList = dsxeNgungList.filter(dsxe => dsxe.RefThongbaongung === idNgung);
+
                 // Tạo danh sách xe với thông tin đầy đủ
-                const vehicleList = dsxeNgungList.map((dsxe, index) => {
+                const vehicleList = filteredDsxeNgungList.map((dsxe, index) => {
                     const xeInfo = xeList.find(xe => xe.Idxe === dsxe.Refxe) || {};
                     return {
                         stt: index + 1,
@@ -493,7 +495,8 @@
                         sophuHieu: xeInfo.SoPH || '',
                         ngayHetHan: formatDateShort(xeInfo.Ngayhethan),
                         coPhuHieuKemTheo: dsxe.CoPHkemtheo === 'Y' ? 'Có' : (dsxe.CoPHkemtheo === 'N' ? 'Không' : ''),
-                        ghiChu: dsxe.Ghichu || ''
+                        ghiChu: dsxe.Ghichu || '',
+                        idxengung: dsxe.Idxengung // Nếu cần dùng id chính
                     };
                 });
 
