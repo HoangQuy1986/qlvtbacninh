@@ -336,7 +336,9 @@
             <td class="right-column">
                 <strong>Thủ trưởng đơn vị</strong><br>
                 <em>(Ký tên và đóng dấu)</em>
-                <div style="height: 80px;"></div>
+                <div style="height: 80px; margin-top: 100px;">
+                    <span id="nguoi-dai-dien">...</span>
+                </div>
             </td>
         </tr>
     </table>
@@ -637,7 +639,7 @@
 
                 // Tuyến (chỉ lấy 1 tuyến cụ thể)
                 if (tuyenId) {
-                    fetchPromises.push(fetchAppSheetData('DANHMUCTUYENCODINH', `Filter(DANHMUCTUYENCODINH, [IdTuyen] = "${tuyenId}")`));
+                    fetchPromises.push(fetchAppSheetData('DANHMUCTUYENCODINH', `Filter(DANHMUCTUYENCODINH, [MaSoTuyen] = "${tuyenId}")`));
                 } else {
                     fetchPromises.push(Promise.resolve([]));
                 }
@@ -659,7 +661,20 @@
                 // Bước 4: Xử lý dữ liệu
                 const donviData = donviList.length > 0 ? donviList[0] : {};
                 const xeInfo = xeList.length > 0 ? xeList[0] : {};
-                const tuyenInfo = tuyenList.length > 0 ? tuyenList[0] : {};
+
+                // Sửa lại xử lý tuyến - sử dụng MaSoTuyen thay vì IdTuyen
+                let tuyenInfo = {};
+                if (tuyenList.length > 0) {
+                    tuyenInfo = tuyenList.find(tuyen => tuyen.MaSoTuyen === tuyenId);
+                    if (!tuyenInfo) {
+                        console.warn(`Không tìm thấy tuyến với MaSoTuyen: ${tuyenId}`);
+                        tuyenInfo = tuyenList[0]; // Fallback
+                    } else {
+                        console.log(`Tìm thấy tuyến chính xác:`, tuyenInfo);
+                    }
+                } else {
+                    console.warn('Không có dữ liệu tuyến');
+                }
 
                 // Xử lý nhân sự
                 let laixe1Info = null, laixe2Info = null, nvpv1Info = null, nvpv2Info = null;
@@ -705,6 +720,7 @@
 
                     // Thông tin đơn vị
                     Tendonvi: donviData.Tendonvi || '',
+                    Nguoidaidien: donviData.Nguoidaidien || '',
                     SoDT: donviData.SoDT || '',
                     Tinh: extractProvince(donviData.Diachi),
 
@@ -756,7 +772,8 @@
             };
 
             // Thông tin cơ bản
-            setText('ten-don-vi', data.Tendonvi);
+            setText('ten-don-vi', data.Tendonvi.toUpperCase());
+
             setText('so-dt', data.SoDT);
             setText('so-lvc', data.Solvc);
             setText('tinh', data.Tinh);
@@ -765,6 +782,7 @@
             setText('nam', data.Nam);
             setText('hieu-luc-tu-ngay', data.Hieuluctungay);
             setText('den-ngay', data.Denngay);
+            setText('nguoi-dai-dien', data.Nguoidaidien);
 
             // Thông tin lái xe
             setText('lai-xe-1', data.Laixe1);
@@ -824,7 +842,8 @@
                     Denngay: globalLenhVanChuyenData.Denngay,
 
                     // Thông tin đơn vị
-                    Tendonvi: globalLenhVanChuyenData.Tendonvi,
+                    Tendonvi: globalLenhVanChuyenData.Tendonvi.toUpperCase(),
+                    Nguoidaidien: globalLenhVanChuyenData.Nguoidaidien,
                     SoDT: globalLenhVanChuyenData.SoDT,
                     Tinh: globalLenhVanChuyenData.Tinh,
 
