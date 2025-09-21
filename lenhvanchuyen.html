@@ -660,7 +660,19 @@
 
                 // Bước 4: Xử lý dữ liệu
                 const donviData = donviList.length > 0 ? donviList[0] : {};
-                const xeInfo = xeList.length > 0 ? xeList[0] : {};
+                
+                let xeInfo = {};
+                if (xeList.length > 0) {
+                    xeInfo = xeList.find(xe => xe.Idxe === xeId);
+                    if (!xeInfo) {
+                        console.warn(`Không tìm thấy xe với ID: ${xeId}`);
+                        xeInfo = xeList[0]; // Fallback
+                    } else {
+                        console.log(`Tìm thấy xe chính xác:`, xeInfo);
+                    }
+                } else {
+                    console.warn('Không có dữ liệu xe');
+                }
 
                 // Sửa lại xử lý tuyến - sử dụng MaSoTuyen thay vì IdTuyen
                 let tuyenInfo = {};
