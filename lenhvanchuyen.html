@@ -76,6 +76,15 @@
             background-color: #1e3f6f;
         }
 
+        .export-button-2 {
+            background-color: #8B4513;
+            color: white;
+        }
+
+        .export-button-2:hover {
+            background-color: #654321;
+        }
+
         #loading-message {
             position: fixed;
             top: 50%;
@@ -279,6 +288,9 @@
         </button>
         <button class="button export-button" onclick="exportToWordTemplate()">
             <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+        <button class="button export-button-2" onclick="exportToWordTemplate2()">
+            <i class="fas fa-file-word"></i> Xuất Word Mẫu 2
         </button>
     </div>
 
@@ -660,7 +672,6 @@
 
                 // Bước 4: Xử lý dữ liệu
                 const donviData = donviList.length > 0 ? donviList[0] : {};
-                
                 let xeInfo = {};
                 if (xeList.length > 0) {
                     xeInfo = xeList.find(xe => xe.Idxe === xeId);
@@ -827,14 +838,14 @@
                 }
 
                 document.getElementById('loading-message').style.display = 'block';
-                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word mẫu 1...';
 
                 // URL template cho lệnh vận chuyển
                 const templateUrl = 'https://poalninh.github.io/templates/templates/lenhvanchuyen_template.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
-                    throw new Error('Không thể tải template Word');
+                    throw new Error('Không thể tải template Word mẫu 1');
                 }
 
                 const templateContent = await response.arrayBuffer();
@@ -886,7 +897,7 @@
                     HanhTrinh: globalLenhVanChuyenData.HanhTrinh
                 };
 
-                console.log('Template data:', templateData);
+                console.log('Template 1 data:', templateData);
 
                 doc.setData(templateData);
                 doc.render();
@@ -896,14 +907,104 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `LenhVanChuyen_${globalLenhVanChuyenData.Solvc || globalLenhVanChuyenData.idlvc || 'Document'}.docx`;
+                const fileName = `LenhVanChuyen_Mau1_${globalLenhVanChuyenData.Solvc || globalLenhVanChuyenData.idlvc || 'Document'}.docx`;
                 saveAs(blob, fileName);
 
                 hideLoadingMessage();
 
             } catch (error) {
-                console.error('Lỗi xuất file Word:', error);
-                alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
+                console.error('Lỗi xuất file Word mẫu 1:', error);
+                alert('Có lỗi xảy ra khi xuất file Word mẫu 1: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Export to Word template 2
+        async function exportToWordTemplate2() {
+            try {
+                if (!globalLenhVanChuyenData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word mẫu 2...';
+
+                // URL template cho lệnh vận chuyển mẫu 2
+                const templateUrl = 'https://poalninh.github.io/templates/templates/lenhvanchuyen_template_2.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word mẫu 2');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                });
+
+                // Chuẩn bị dữ liệu cho template (giống như template 1)
+                const templateData = {
+                    // Thông tin cơ bản
+                    idlvc: globalLenhVanChuyenData.idlvc,
+                    Solvc: globalLenhVanChuyenData.Solvc,
+                    Hieuluctungay: globalLenhVanChuyenData.Hieuluctungay,
+                    Denngay: globalLenhVanChuyenData.Denngay,
+
+                    // Thông tin đơn vị
+                    Tendonvi: globalLenhVanChuyenData.Tendonvi.toUpperCase(),
+                    Nguoidaidien: globalLenhVanChuyenData.Nguoidaidien,
+                    SoDT: globalLenhVanChuyenData.SoDT,
+                    Tinh: globalLenhVanChuyenData.Tinh,
+
+                    // Thông tin ngày tháng với định dạng mới
+                    Ngay: globalLenhVanChuyenData.Ngay,
+                    Thang: globalLenhVanChuyenData.Thang,
+                    Nam: globalLenhVanChuyenData.Nam,
+
+                    // Thông tin lái xe
+                    Laixe1: globalLenhVanChuyenData.Laixe1,
+                    HangGPLX1: globalLenhVanChuyenData.HangGPLX1,
+                    Laixe2: globalLenhVanChuyenData.Laixe2,
+                    HangGPLX2: globalLenhVanChuyenData.HangGPLX2,
+
+                    // Thông tin nhân viên phục vụ
+                    NVPV1: globalLenhVanChuyenData.NVPV1,
+                    NVPV2: globalLenhVanChuyenData.NVPV2,
+
+                    // Thông tin xe
+                    Bienso: globalLenhVanChuyenData.Bienso,
+                    Socho: globalLenhVanChuyenData.Socho,
+                    Loaixe: globalLenhVanChuyenData.Loaixe,
+
+                    // Thông tin tuyến
+                    BenDi: globalLenhVanChuyenData.BenDi,
+                    BenDen: globalLenhVanChuyenData.BenDen,
+                    MaSoTuyen: globalLenhVanChuyenData.MaSoTuyen,
+                    HanhTrinh: globalLenhVanChuyenData.HanhTrinh
+                };
+
+                console.log('Template 2 data:', templateData);
+
+                doc.setData(templateData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `LenhVanChuyen_Mau2_${globalLenhVanChuyenData.Solvc || globalLenhVanChuyenData.idlvc || 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi xuất file Word mẫu 2:', error);
+                alert('Có lỗi xảy ra khi xuất file Word mẫu 2: ' + error.message);
                 hideLoadingMessage();
             }
         }
