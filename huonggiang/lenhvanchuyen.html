@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lệnh Vận Chuyển</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.4;
+            background: white;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 15mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Document header styling */
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            width: 50%;
+        }
+
+        .header-right {
+            width: 45%;
+            text-align: center;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .phone-number {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .document-number {
+            font-size: 12px;
+        }
+
+        .header-country {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .header-motto {
+            font-weight: bold;
+            font-style: italic;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .header-location {
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        /* Title styling */
+        .document-title {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .title-main {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .title-sub {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .title-validity {
+            font-style: italic;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Main content table */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11px;
+        }
+
+        .main-table th,
+        .main-table td {
+            border: 1px solid #000;
+            padding: 8px 4px;
+            vertical-align: top;
+            line-height: 1.3;
+        }
+
+        .left-column {
+            width: 70%;
+        }
+
+        .right-column {
+            width: 30%;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* Schedule table */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 11px;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            border: 1px solid #000;
+            padding: 8px 4px;
+            text-align: center;
+            vertical-align: top;
+        }
+
+        .schedule-table th {
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+
+        /* Signature section */
+        .signature-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .signature-item {
+            width: 30%;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .signature-space {
+            height: 60px;
+            border-bottom: 1px dotted #666;
+            margin: 10px 0;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 15mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .info-row {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Content -->
+    <div class="document-header">
+        <div class="header-left">
+            <div class="company-name" id="ten-don-vi">...</div>
+            <div class="phone-number">Điện thoại: <span id="so-dt">...</span></div>
+            <div class="document-number">Số: <span id="so-lvc">...</span></div>
+        </div>
+        <div class="header-right">
+            <div class="header-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div class="header-motto">Độc lập - Tự do - Hạnh phúc</div>
+            <div class="header-location">
+                <em><span id="tinh">...</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span> năm
+                    <span id="nam">...</span></em>
+            </div>
+        </div>
+    </div>
+
+    <div class="document-title">
+        <div class="title-main">LỆNH VẬN CHUYỂN</div>
+        <div class="title-sub">Dùng cho xe ô tô vận chuyển hành khách tuyến cố định</div>
+        <div class="title-validity">
+            <em>Có giá trị từ ngày <span id="hieu-luc-tu-ngay">...</span> đến ngày <span id="den-ngay">...</span></em>
+        </div>
+    </div>
+
+    <!-- Main Information Table -->
+    <table class="main-table">
+        <tr>
+            <td class="left-column">
+                <div class="info-row">Cấp cho Lái xe 1: <span id="lai-xe-1">...</span> hạng GPLX: <span
+                        id="hang-gplx-1">...</span></div>
+                <br>
+                <div class="info-row">Lái xe 2: <span id="lai-xe-2">...</span> hạng GPLX: <span
+                        id="hang-gplx-2">...</span></div>
+                <br>
+                <div class="info-row">Nhân viên phục vụ trên xe 1: <span id="nvpv-1">...</span></div>
+                <br>
+                <div class="info-row">Nhân viên phục vụ trên xe 2: <span id="nvpv-2">...</span></div>
+                <br>
+                <div class="info-row">Biển số đăng ký: <strong id="bien-so">...</strong></div>
+                <div class="info-row">Số ghế (giường nằm): <span id="so-cho">...</span> Loại xe: <span
+                        id="loai-xe">...</span></div>
+                <br>
+                <div class="info-row">Bến đi: <span id="ben-di">...</span> Bến đến: <span id="ben-den">...</span>. Mã số
+                    tuyến: <span id="ma-so-tuyen">...</span></div>
+                <br>
+                <div class="info-row">Hành trình tuyến: <span id="hanh-trinh">...</span></div>
+            </td>
+            <td class="right-column">
+                <strong>Thủ trưởng đơn vị</strong><br>
+                <em>(Ký tên và đóng dấu)</em>
+                <div style="height: 80px; margin-top: 100px;">
+                    <span id="nguoi-dai-dien">...</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Schedule Table -->
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Lượt xe thực hiện</th>
+                <th style="width: 25%;">Bến xe đi, đến</th>
+                <th style="width: 20%;">Giờ xe chạy</th>
+                <th style="width: 10%;">Số khách</th>
+                <th style="width: 30%;">Bến xe<br><em>(Ký tên và đóng dấu)</em></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2">Lượt đi</td>
+                <td>Bến xe đi:<br>........................</td>
+                <td>xuất bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+                <td rowspan="8"></td>
+            </tr>
+            <tr>
+                <td>Bến xe nơi đến:<br>........................</td>
+                <td>đến bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="2">Lượt về</td>
+                <td>Bến xe đi:<br>........................</td>
+                <td>xuất bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Bến xe nơi đến:<br>........................</td>
+                <td>đến bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="2">Lượt đi</td>
+                <td>Bến xe đi:<br>........................</td>
+                <td>xuất bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Bến xe nơi đến:<br>........................</td>
+                <td>đến bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="2">Lượt về</td>
+                <td>Bến xe đi:<br>........................</td>
+                <td>xuất bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Bến xe nơi đến:<br>........................</td>
+                <td>đến bến<br>......... giờ<br>ngày..........</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Final Signature Section -->
+    <div class="signature-section">
+        <div class="signature-item">
+            <strong>LÁI XE 1</strong><br>
+            <em>(Ký và ghi rõ họ tên)</em>
+            <div class="signature-space"></div>
+        </div>
+        <div class="signature-item">
+            <strong>LÁI XE 2</strong><br>
+            <em>(Ký và ghi rõ họ tên)</em>
+            <div class="signature-space"></div>
+        </div>
+        <div class="signature-item">
+            <strong>NHÂN VIÊN PHỤC VỤ TRÊN XE</strong><br>
+            <em>(Ký và ghi rõ họ tên)</em>
+            <div class="signature-space"></div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'c63948d1-e202-4400-a894-3e94f7f397f6';
+        const accessKey = 'V2-Kz8H5-XrQQD-xSHTJ-BXZqO-04jXl-AKoDb-Ub0SX-rBouU';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalLenhVanChuyenData = null;
+
+        // Function to get IDlvc from URL
+        function getIDlvcFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('idlvc') || urlParams.get('IDlvc');
+        }
+
+        // Function to fetch data from AppSheet
+        async function fetchAppSheetData(tableName, filter = null) {
+            try {
+                const selector = filter || `Filter(${tableName}, true)`;
+                console.log(`🔍 Executing selector for ${tableName}:`, selector);
+
+                const body = {
+                    Action: 'Find',
+                    Properties: {},
+                    Selector: selector
+                };
+
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(`🔍 Response for ${tableName}:`, data);
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error(`Failed to fetch ${tableName}:`, error);
+                throw error;
+            }
+        }
+
+        // Format date từ Date thành dd/mm/yyyy với quy tắc định dạng mới
+        function formatDateShort(dateString) {
+            if (!dateString || dateString === '') {
+                return '';
+            }
+
+            let date;
+            if (typeof dateString === 'string') {
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]);
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        date = new Date(year, month - 1, day);
+                    }
+                } else if (dateString.includes('-')) {
+                    date = new Date(dateString);
+                } else {
+                    date = new Date(dateString);
+                }
+            } else if (dateString instanceof Date) {
+                date = dateString;
+            } else {
+                return dateString.toString();
+            }
+
+            if (isNaN(date.getTime())) {
+                return dateString.toString();
+            }
+
+            const day = date.getDate().toString().padStart(2, '0'); // Luôn có 2 chữ số
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            // Định dạng tháng theo quy tắc:
+            // Tháng 1, 2: có số 0 đằng trước (01, 02)
+            // Tháng 3-12: không có số 0 đằng trước (3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+            const formattedMonth = (month === 1 || month === 2) ?
+                month.toString().padStart(2, '0') :
+                month.toString();
+
+            return `${day}/${formattedMonth}/${year}`;
+        }
+
+        // Get current date components hoặc từ Ngaycap với định dạng mới
+        function getDateComponents(dateString = null) {
+            let targetDate;
+
+            if (dateString) {
+                if (typeof dateString === 'string' && dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]);
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        targetDate = new Date(year, month - 1, day);
+                    }
+                } else {
+                    targetDate = new Date(dateString);
+                }
+            }
+
+            if (!targetDate || isNaN(targetDate.getTime())) {
+                targetDate = new Date();
+            }
+
+            const day = targetDate.getDate().toString().padStart(2, '0'); // Luôn có 2 chữ số
+            const monthNum = targetDate.getMonth() + 1;
+            const year = targetDate.getFullYear();
+
+            // Định dạng tháng theo quy tắc:
+            // Tháng 1, 2: có số 0 đằng trước (01, 02)
+            // Tháng 3-12: không có số 0 đằng trước (3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+            const month = (monthNum === 1 || monthNum === 2) ?
+                monthNum.toString().padStart(2, '0') :
+                monthNum.toString();
+
+            return {
+                day: day,
+                month: month,
+                year: year
+            };
+        }
+
+        // Extract province from address
+        function extractProvince(address) {
+            if (!address) return 'Bắc Ninh';
+            const provincePrefixes = ['Tỉnh ', 'Thành phố ', 'TP. ', 'T.P '];
+            const parts = address.split(',');
+            let lastPart = parts[parts.length - 1].trim();
+
+            for (const prefix of provincePrefixes) {
+                if (lastPart.startsWith(prefix)) {
+                    lastPart = lastPart.substring(prefix.length).trim();
+                    break;
+                }
+            }
+
+            return lastPart || 'Bắc Ninh';
+        }
+
+        // Load data from AppSheet với tối ưu hiệu suất
+        async function loadData() {
+            try {
+                const idlvc = getIDlvcFromURL();
+                console.log('🔍 ID Lệnh Vận Chuyển từ URL:', idlvc);
+
+                if (!idlvc) {
+                    throw new Error('Không tìm thấy idlvc trong URL');
+                }
+
+                // Bước 1: Lấy thông tin lệnh vận chuyển và đơn vị trước
+                const [lenhVanChuyenList, donviList] = await Promise.all([
+                    fetchAppSheetData('LENHVANCHUYEN', `Filter(LENHVANCHUYEN, [idlvc] = "${idlvc}")`),
+                    fetchAppSheetData('THONGTINDONVI')
+                ]);
+
+                console.log('🔍 Lệnh vận chuyển data:', lenhVanChuyenList);
+
+                if (!lenhVanChuyenList || lenhVanChuyenList.length === 0) {
+                    throw new Error('Không tìm thấy lệnh vận chuyển với ID này');
+                }
+
+                const lenhData = lenhVanChuyenList.find(item => item.idlvc === idlvc);
+                if (!lenhData) {
+                    throw new Error(`Không tìm thấy ID "${idlvc}"`);
+                }
+
+                // Bước 2: Chuẩn bị các ID cần thiết để filter
+                const nhansuIds = [];
+                let laixeList = [];
+                let nvpvList = [];
+
+                if (lenhData.RefLx1) {
+                    laixeList = lenhData.RefLx1.split(',').map(id => id.trim()).filter(id => id !== '');
+                    nhansuIds.push(...laixeList);
+                }
+                if (lenhData.RefNVPV1) {
+                    nvpvList = lenhData.RefNVPV1.split(',').map(id => id.trim()).filter(id => id !== '');
+                    nhansuIds.push(...nvpvList);
+                }
+
+                const xeId = lenhData.RefXe;
+                const tuyenId = lenhData.RefTuyen;
+
+                console.log('🔍 IDs cần lấy:', { nhansuIds, xeId, tuyenId, laixeList, nvpvList });
+
+                // Bước 3: Fetch dữ liệu đã được filter chính xác
+                const fetchPromises = [];
+
+                // Nhân sự (chỉ lấy những ID cần thiết)
+                if (nhansuIds.length > 0) {
+                    const nhansuFilter = `Filter(THONGTINNHANSU, OR(${nhansuIds.map(id => `[IDNS] = "${id}"`).join(', ')}))`;
+                    fetchPromises.push(fetchAppSheetData('THONGTINNHANSU', nhansuFilter));
+                } else {
+                    fetchPromises.push(Promise.resolve([]));
+                }
+
+                // Xe (chỉ lấy 1 xe cụ thể)
+                if (xeId) {
+                    fetchPromises.push(fetchAppSheetData('THONGTINXE', `Filter(THONGTINXE, [Idxe] = "${xeId}")`));
+                } else {
+                    fetchPromises.push(Promise.resolve([]));
+                }
+
+                // Tuyến (chỉ lấy 1 tuyến cụ thể)
+                if (tuyenId) {
+                    fetchPromises.push(fetchAppSheetData('DANHMUCTUYENCODINH', `Filter(DANHMUCTUYENCODINH, [MaSoTuyen] = "${tuyenId}")`));
+                } else {
+                    fetchPromises.push(Promise.resolve([]));
+                }
+
+                const [nhansuList, xeList, tuyenList] = await Promise.all(fetchPromises);
+
+                console.log('🔍 Filtered data loaded:', {
+                    nhansu: nhansuList.length,
+                    xe: xeList.length,
+                    tuyen: tuyenList.length
+                });
+
+                // Debug dữ liệu nhận được
+                console.log('=== DEBUG DATA ===');
+                console.log('Nhân sự data:', nhansuList);
+                console.log('Xe data:', xeList);
+                console.log('Tuyến data:', tuyenList);
+
+                // Bước 4: Xử lý dữ liệu
+                const donviData = donviList.length > 0 ? donviList[0] : {};
+                let xeInfo = {};
+                if (xeList.length > 0) {
+                    xeInfo = xeList.find(xe => xe.Idxe === xeId);
+                    if (!xeInfo) {
+                        console.warn(`Không tìm thấy xe với ID: ${xeId}`);
+                        xeInfo = xeList[0]; // Fallback
+                    } else {
+                        console.log(`Tìm thấy xe chính xác:`, xeInfo);
+                    }
+                } else {
+                    console.warn('Không có dữ liệu xe');
+                }
+
+                // Sửa lại xử lý tuyến - sử dụng MaSoTuyen thay vì IdTuyen
+                let tuyenInfo = {};
+                if (tuyenList.length > 0) {
+                    tuyenInfo = tuyenList.find(tuyen => tuyen.MaSoTuyen === tuyenId);
+                    if (!tuyenInfo) {
+                        console.warn(`Không tìm thấy tuyến với MaSoTuyen: ${tuyenId}`);
+                        tuyenInfo = tuyenList[0]; // Fallback
+                    } else {
+                        console.log(`Tìm thấy tuyến chính xác:`, tuyenInfo);
+                    }
+                } else {
+                    console.warn('Không có dữ liệu tuyến');
+                }
+
+                // Xử lý nhân sự
+                let laixe1Info = null, laixe2Info = null, nvpv1Info = null, nvpv2Info = null;
+
+                // Xử lý nhân sự với tên cột chính xác
+                console.log('Danh sách lái xe sau khi tách:', laixeList);
+                if (laixeList.length > 0) {
+                    laixe1Info = nhansuList.find(ns => ns.IDNS === laixeList[0]);
+                    console.log(`Tìm lái xe 1 với ID "${laixeList[0]}":`, laixe1Info);
+                }
+                if (laixeList.length > 1) {
+                    laixe2Info = nhansuList.find(ns => ns.IDNS === laixeList[1]);
+                    console.log(`Tìm lái xe 2 với ID "${laixeList[1]}":`, laixe2Info);
+                }
+
+                console.log('Danh sách NVPV sau khi tách:', nvpvList);
+                if (nvpvList.length > 0) {
+                    nvpv1Info = nhansuList.find(ns => ns.IDNS === nvpvList[0]);
+                    console.log(`Tìm NVPV 1 với ID "${nvpvList[0]}":`, nvpv1Info);
+                }
+                if (nvpvList.length > 1) {
+                    nvpv2Info = nhansuList.find(ns => ns.IDNS === nvpvList[1]);
+                    console.log(`Tìm NVPV 2 với ID "${nvpvList[1]}":`, nvpv2Info);
+                }
+
+                // Debug kết quả cuối cùng
+                console.log('=== KẾT QUẢ CUỐI CÙNG ===');
+                console.log('Lái xe 1:', { id: laixeList[0], data: laixe1Info });
+                console.log('Lái xe 2:', { id: laixeList[1], data: laixe2Info });
+                console.log('NVPV 1:', { id: nvpvList[0], data: nvpv1Info });
+                console.log('NVPV 2:', { id: nvpvList[1], data: nvpv2Info });
+
+                const dateComponents = getDateComponents();
+
+                // Lưu dữ liệu cho xuất Word
+                globalLenhVanChuyenData = {
+                    // Thông tin cơ bản
+                    idlvc: lenhData.idlvc || '',
+                    Solvc: lenhData.Solvc || '',
+                    Ngaycap: formatDateShort(lenhData.Ngaycap),
+                    Hieuluctungay: formatDateShort(lenhData.Hieuluctungay),
+                    Denngay: formatDateShort(lenhData.Denngay),
+
+                    // Thông tin đơn vị
+                    Tendonvi: donviData.Tendonvi || '',
+                    Nguoidaidien: donviData.Nguoidaidien || '',
+                    SoDT: donviData.SoDT || '',
+                    Tinh: extractProvince(donviData.Diachi),
+
+                    // Thông tin ngày tháng với định dạng mới
+                    Ngay: dateComponents.day,
+                    Thang: dateComponents.month,
+                    Nam: dateComponents.year,
+
+                    // Thông tin lái xe với tên cột chính xác
+                    Laixe1: laixe1Info ? laixe1Info.Hoten : '',
+                    HangGPLX1: laixe1Info ? laixe1Info["Hạng GPLX"] : '',
+                    Laixe2: laixe2Info ? laixe2Info.Hoten : '',
+                    HangGPLX2: laixe2Info ? laixe2Info["Hạng GPLX"] : '',
+
+                    // Thông tin nhân viên phục vụ
+                    NVPV1: nvpv1Info ? nvpv1Info.Hoten : '',
+                    NVPV2: nvpv2Info ? nvpv2Info.Hoten : '',
+
+                    // Thông tin xe
+                    Bienso: xeInfo.Bienso || '',
+                    Socho: xeInfo.Socho || '',
+                    Loaixe: xeInfo.Loaixe || '',
+
+                    // Thông tin tuyến
+                    BenDi: tuyenInfo.BenDi || '',
+                    BenDen: tuyenInfo.BenDen || '',
+                    MaSoTuyen: tuyenInfo.MaSoTuyen || '',
+                    HanhTrinh: tuyenInfo.HanhTrinh || ''
+                };
+
+                // Populate HTML với dữ liệu
+                populateHTML(globalLenhVanChuyenData);
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                hideLoadingMessage();
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Populate HTML with data
+        function populateHTML(data) {
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || '';
+                }
+            };
+
+            // Thông tin cơ bản
+            setText('ten-don-vi', data.Tendonvi.toUpperCase());
+
+            setText('so-dt', data.SoDT);
+            setText('so-lvc', data.Solvc);
+            setText('tinh', data.Tinh);
+            setText('ngay', data.Ngay);
+            setText('thang', data.Thang);
+            setText('nam', data.Nam);
+            setText('hieu-luc-tu-ngay', data.Hieuluctungay);
+            setText('den-ngay', data.Denngay);
+            setText('nguoi-dai-dien', data.Nguoidaidien);
+
+            // Thông tin lái xe
+            setText('lai-xe-1', data.Laixe1);
+            setText('hang-gplx-1', data.HangGPLX1);
+            setText('lai-xe-2', data.Laixe2);
+            setText('hang-gplx-2', data.HangGPLX2);
+
+            // Thông tin nhân viên phục vụ
+            setText('nvpv-1', data.NVPV1);
+            setText('nvpv-2', data.NVPV2);
+
+            // Thông tin xe
+            setText('bien-so', data.Bienso);
+            setText('so-cho', data.Socho);
+            setText('loai-xe', data.Loaixe);
+
+            // Thông tin tuyến
+            setText('ben-di', data.BenDi);
+            setText('ben-den', data.BenDen);
+            setText('ma-so-tuyen', data.MaSoTuyen);
+            setText('hanh-trinh', data.HanhTrinh);
+        }
+
+        // Export to Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalLenhVanChuyenData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                // URL template cho lệnh vận chuyển
+                const templateUrl = 'https://poalninh.github.io/templates/templates/lenhvanchuyen_template.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                });
+
+                // Chuẩn bị dữ liệu cho template
+                const templateData = {
+                    // Thông tin cơ bản
+                    idlvc: globalLenhVanChuyenData.idlvc,
+                    Solvc: globalLenhVanChuyenData.Solvc,
+                    Hieuluctungay: globalLenhVanChuyenData.Hieuluctungay,
+                    Denngay: globalLenhVanChuyenData.Denngay,
+
+                    // Thông tin đơn vị
+                    Tendonvi: globalLenhVanChuyenData.Tendonvi.toUpperCase(),
+                    Nguoidaidien: globalLenhVanChuyenData.Nguoidaidien,
+                    SoDT: globalLenhVanChuyenData.SoDT,
+                    Tinh: globalLenhVanChuyenData.Tinh,
+
+                    // Thông tin ngày tháng với định dạng mới
+                    Ngay: globalLenhVanChuyenData.Ngay,
+                    Thang: globalLenhVanChuyenData.Thang,
+                    Nam: globalLenhVanChuyenData.Nam,
+
+                    // Thông tin lái xe
+                    Laixe1: globalLenhVanChuyenData.Laixe1,
+                    HangGPLX1: globalLenhVanChuyenData.HangGPLX1,
+                    Laixe2: globalLenhVanChuyenData.Laixe2,
+                    HangGPLX2: globalLenhVanChuyenData.HangGPLX2,
+
+                    // Thông tin nhân viên phục vụ
+                    NVPV1: globalLenhVanChuyenData.NVPV1,
+                    NVPV2: globalLenhVanChuyenData.NVPV2,
+
+                    // Thông tin xe
+                    Bienso: globalLenhVanChuyenData.Bienso,
+                    Socho: globalLenhVanChuyenData.Socho,
+                    Loaixe: globalLenhVanChuyenData.Loaixe,
+
+                    // Thông tin tuyến
+                    BenDi: globalLenhVanChuyenData.BenDi,
+                    BenDen: globalLenhVanChuyenData.BenDen,
+                    MaSoTuyen: globalLenhVanChuyenData.MaSoTuyen,
+                    HanhTrinh: globalLenhVanChuyenData.HanhTrinh
+                };
+
+                console.log('Template data:', templateData);
+
+                doc.setData(templateData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `LenhVanChuyen_${globalLenhVanChuyenData.Solvc || globalLenhVanChuyenData.idlvc || 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi xuất file Word:', error);
+                alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Initialize application
+        async function initialize() {
+            try {
+                const idlvc = getIDlvcFromURL();
+                if (!idlvc) {
+                    alert('Vui lòng cung cấp idlvc trong URL. Ví dụ: ?idlvc=693fa669');
+                    return;
+                }
+                await loadData();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
+        // Disable right-click and F12
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>

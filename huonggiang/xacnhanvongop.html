@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giấy Xác Nhận Vốn Góp Thành Viên HTX</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 15px;
+            line-height: 1.6;
+            background: white;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Document header styling */
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .header-left {
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+            width: 45%;
+        }
+
+        .header-left .org-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-left .underline {
+            border-bottom: 1px solid #000;
+            width: 60px;
+            margin: 2px auto 10px auto;
+        }
+
+        .header-left .document-number {
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .header-right {
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            width: 50%;
+        }
+
+        .header-right .country {
+            font-weight: bold;
+        }
+
+        .header-right .motto {
+            text-decoration: underline;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .header-right .location-date {
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        /* Title styling */
+        .document-title {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .document-title .underline {
+            border-bottom: 1px solid #000;
+            width: 60px;
+            margin: 2px auto 10px auto;
+        }
+
+        .title-main {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .title-sub {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        /* Company info styling */
+        .company-info {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .company-info .org-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .company-info p {
+            margin-bottom: 8px;
+        }
+
+        /* Content styling */
+        .certificate-section {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .certificate-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .member-info {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .member-info p {
+            margin-bottom: 8px;
+        }
+
+        .member-info .name-line {
+            margin-bottom: 15px;
+        }
+
+        .capital-info {
+            margin: 20px 0;
+        }
+
+        .capital-info p {
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .vehicle-details {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .vehicle-details p {
+            margin-bottom: 5px;
+        }
+
+        /* Signature section */
+        .signature-section {
+            margin-top: 60px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature-right {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .signature-role {
+            font-weight: bold;
+            margin-bottom: 80px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Content -->
+    <div class="document-header">
+        <div class="header-left">
+            <div class="org-name"><span id="tendonvi">TENDONVI</span></div>
+            <div class="underline"></div>
+            <div class="document-number">Số: <span id="sovanban">........</span></div>
+        </div>
+        <div class="header-right">
+            <div class="country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
+            <div class="location-date">
+                <em><span id="tinh">Bắc Ninh</span>, ngày <span id="ngay">...</span> tháng <span id="thang">...</span>
+                    năm <span id="nam">...</span></em>
+            </div>
+        </div>
+    </div>
+
+    <div class="document-title">
+        <div class="title-main">GIẤY CHỨNG NHẬN</div>
+        <div class="title-sub">Vốn góp của thành viên hợp tác xã</div>
+        <div class="underline"></div>
+    </div>
+
+    <div class="company-info">
+        <div class="org-name"><span id="tendonvi-2">TENDONVI</span></div>
+        <p>Địa chỉ trụ sở: <span id="diachi">Địa chỉ</span>.</p>
+        <p>Giấy chứng nhận ĐKKD số: <span id="sogiaycndkkd">Số giấy CNDKKD</span> do <span id="noicapgcndkkd">Nơi cấp
+                GCNDKKD</span> cấp ngày <span id="ngaycapgcndkkd">Ngày cấp GCNDKKD</span>.</p>
+        <p>Vốn điều lệ: <span id="vondieule">Vốn điều lệ</span> đồng</p>
+    </div>
+
+    <div class="certificate-section">
+        <div class="certificate-title">CHỨNG NHẬN:</div>
+    </div>
+
+    <div class="member-info">
+        <p class="name-line">Ông/Bà: <strong><span
+                    id="hoten">Hoten</span></strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sinh ngày: <span
+                id="ngaysinh">Ngaysinh</span></p>
+        <p>CCCD số: <span id="socccd">SoCCCD</span></p>
+        <p>HKTT: <span id="diachidaydu">Diachidaydu</span></p>
+    </div>
+
+    <div class="capital-info">
+        <p>Tổng vốn góp: <strong><span id="giatrixe">Giatrixe</span> VNĐ</strong></p>
+        <p>Trong đó:</p>
+        <p>Vốn góp bằng tiền mặt: Không</p>
+        <p>Vốn góp bằng tài sản: xe ô tô BKS <span id="bienso">Bienso</span></p>
+
+        <div class="vehicle-details">
+            <p>Số máy: <strong><span id="somay">Somay</span></strong> * Số khung: <strong><span
+                        id="sokhung">Sokhung</span></strong></p>
+            <p>Giá trị vốn góp: <strong><span id="giatrixe-2">Giatrixe</span> VNĐ</strong></p>
+            <p>Bằng chữ: <span id="giatrixe-chu">GiatrixeChu</span> đồng.</p>
+            <p>Ngày góp: <span id="ngay-gop">15/5/2023</span></p>
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-right">
+            <div class="signature-title">TM. HỘI ĐỒNG QUẢN TRỊ</div>
+            <div class="signature-role">CHỦ TỊCH</div>
+            <div class="signature-name"><span id="nguoi-dai-dien">Nguoidaidien</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'c63948d1-e202-4400-a894-3e94f7f397f6';
+        const accessKey = 'V2-Kz8H5-XrQQD-xSHTJ-BXZqO-04jXl-AKoDb-Ub0SX-rBouU';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalCertificateData = null;
+
+        // Function to get IDHoSo from URL
+        function getIDHoSoFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IDHoSo') || urlParams.get('idhoso');
+        }
+
+        // Function to fetch data from AppSheet
+        async function fetchAppSheetData(tableName, filter = null) {
+            try {
+                const selector = filter || `Filter(${tableName}, true)`;
+                console.log(`🔍 Executing selector for ${tableName}:`, selector);
+
+                const body = {
+                    Action: 'Find',
+                    Properties: {},
+                    Selector: selector
+                };
+
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(`🔍 Response for ${tableName}:`, data);
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error(`Failed to fetch ${tableName}:`, error);
+                throw error;
+            }
+        }
+
+        // Function to format Vietnamese currency
+        function formatVietnameseCurrency(amount) {
+            if (!amount || amount === '' || amount === '0') return '0';
+            const cleanAmount = amount.toString().replace(/[^\d]/g, '');
+            if (!cleanAmount || isNaN(cleanAmount)) return '0';
+            return parseInt(cleanAmount).toLocaleString('vi-VN');
+        }
+
+        // Function to convert number to Vietnamese words
+        function numberToWords(num) {
+            if (!num || num === '' || num === '0') return 'Không';
+
+            const cleanNum = num.toString().replace(/[^\d]/g, '');
+            if (!cleanNum || cleanNum === '0') return 'Không';
+
+            const numValue = parseInt(cleanNum);
+            if (isNaN(numValue) || numValue === 0) return 'Không';
+
+            const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
+            const scales = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+
+            function convertGroup(num) {
+                let result = '';
+                const hundreds = Math.floor(num / 100);
+                const remainder = num % 100;
+                const tensDigit = Math.floor(remainder / 10);
+                const onesDigit = remainder % 10;
+
+                if (hundreds > 0) {
+                    result += ones[hundreds] + ' trăm';
+                }
+
+                if (tensDigit >= 2) {
+                    result += (result ? ' ' : '') + tens[tensDigit];
+                    if (onesDigit === 1) {
+                        result += ' một';
+                    } else if (onesDigit === 5) {
+                        result += ' lăm';
+                    } else if (onesDigit > 0) {
+                        result += ' ' + ones[onesDigit];
+                    }
+                } else if (tensDigit === 1) {
+                    result += (result ? ' ' : '') + 'mười';
+                    if (onesDigit === 5) {
+                        result += ' lăm';
+                    } else if (onesDigit > 0) {
+                        result += ' ' + ones[onesDigit];
+                    }
+                } else if (onesDigit > 0) {
+                    if (hundreds > 0) {
+                        result += ' lẻ';
+                    }
+                    result += (result ? ' ' : '') + ones[onesDigit];
+                }
+
+                return result;
+            }
+
+            const groups = [];
+            let tempNum = numValue;
+
+            while (tempNum > 0) {
+                groups.unshift(tempNum % 1000);
+                tempNum = Math.floor(tempNum / 1000);
+            }
+
+            let result = '';
+            for (let i = 0; i < groups.length; i++) {
+                if (groups[i] > 0) {
+                    const groupText = convertGroup(groups[i]);
+                    const scaleIndex = groups.length - 1 - i;
+
+                    if (result) result += ' ';
+                    result += groupText;
+                    if (scaleIndex > 0 && scaleIndex < scales.length) {
+                        result += ' ' + scales[scaleIndex];
+                    }
+                }
+            }
+
+            return result.charAt(0).toUpperCase() + result.slice(1);
+        }
+
+        // Function to extract province from address
+        function extractProvince(address) {
+            if (!address) return 'Bắc Ninh';
+            const provincePrefixes = ['Tỉnh ', 'Thành phố ', 'TP. ', 'T.P '];
+            const parts = address.split(',');
+            let lastPart = parts[parts.length - 1].trim();
+
+            for (const prefix of provincePrefixes) {
+                if (lastPart.startsWith(prefix)) {
+                    lastPart = lastPart.substring(prefix.length).trim();
+                    break;
+                }
+            }
+
+            return lastPart || 'Bắc Ninh';
+        }
+
+        // Format ngày sinh từ Date thành dd/mm/yyyy
+        function formatDateShort(dateString) {
+            if (!dateString || dateString === '') {
+                return '';
+            }
+
+            let date;
+            if (typeof dateString === 'string') {
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0]);
+                        const month = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        date = new Date(year, month - 1, day);
+                    }
+                } else if (dateString.includes('-')) {
+                    date = new Date(dateString);
+                } else {
+                    date = new Date(dateString);
+                }
+            } else if (dateString instanceof Date) {
+                date = dateString;
+            } else {
+                return dateString.toString();
+            }
+
+            if (isNaN(date.getTime())) {
+                return dateString.toString();
+            }
+
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+
+            let formattedMonth;
+            if (month === 1 || month === 2) {
+                formattedMonth = month.toString().padStart(2, '0');
+            } else {
+                formattedMonth = month.toString();
+            }
+
+            return `${day}/${formattedMonth}/${year}`;
+        }
+
+        // Format ngày tháng thành dd/mm/yyyy
+        function formatFullDate(dateString) {
+            if (!dateString || dateString === '') {
+                return '15/5/2023';
+            }
+            return formatDateShort(dateString);
+        }
+
+        // Get current date components
+        function getCurrentDateComponents() {
+            const today = new Date();
+            return {
+                day: today.getDate().toString().padStart(2, '0'),
+                month: today.getMonth() + 1,
+                year: today.getFullYear()
+            };
+        }
+
+        // Load data from AppSheet
+        async function loadData() {
+            try {
+                const idHoSo = getIDHoSoFromURL();
+                console.log('🔍 ID từ URL:', idHoSo);
+
+                if (!idHoSo) {
+                    throw new Error('Không tìm thấy IDHoSo trong URL');
+                }
+
+                // Fetch dữ liệu từ các bảng
+                const [hosoList, donviList, xeList, nhansuList] = await Promise.all([
+                    fetchAppSheetData('HOSONHANSU', `Filter(HOSONHANSU, [IDHoSo] = "${idHoSo}")`),
+                    fetchAppSheetData('THONGTINDONVI'),
+                    fetchAppSheetData('THONGTINXE'),
+                    fetchAppSheetData('THONGTINNHANSU')
+                ]);
+
+                if (!hosoList || hosoList.length === 0) {
+                    throw new Error('Không tìm thấy hồ sơ với ID này');
+                }
+
+                const hosoData = hosoList.find(item => item.IDHoSo === idHoSo);
+                if (!hosoData) {
+                    throw new Error(`Không tìm thấy ID "${idHoSo}"`);
+                }
+
+                const donviData = donviList.length > 0 ? donviList[0] : {};
+                const xeData = hosoData.Ref_Xe ?
+                    xeList.find(x => x.Idxe === hosoData.Ref_Xe) || {} : {};
+                const nhansuData = hosoData.Ref_ThanhVien ?
+                    nhansuList.find(n => n.IDNS === hosoData.Ref_ThanhVien) || {} : {};
+
+                const currentDate = getCurrentDateComponents();
+
+                // Lưu dữ liệu cho xuất Word
+                globalCertificateData = {
+                    IDHoSo: hosoData.IDHoSo || '',
+                    Tendonvi: donviData.Tendonvi || '',
+                    Diachi: donviData.Diachi || '',
+                    SogiayCNDKKD: donviData.SogiayCNDKKD || '',
+                    NoicapGCNDKKD: donviData.NoicapGCNDKKD || '',
+                    NgaycapGCNDKKD: formatDateShort(donviData.NgaycapGCNDKKD),
+                    Vondieule: formatVietnameseCurrency(donviData.Vondieule),
+                    SoVanBan: hosoData.SoVanBan || '........',
+                    Nguoidaidien: donviData.Nguoidaidien || '',
+                    Ref_ThanhVien: nhansuData.Hoten || '',
+                    Hoten: nhansuData.Hoten || '',
+                    Ngaysinh: formatDateShort(nhansuData.Ngaysinh),
+                    NoCCCD: nhansuData.NoCCCD || '',
+                    Diachidaydu: nhansuData.Diachidaydu || '',
+                    Bienso: xeData.Bienso || '',
+                    Somay: xeData.Somay || '',
+                    Sokhung: xeData.Sokhung || '',
+                    Giatrixe: formatVietnameseCurrency(xeData.Giatrixe),
+                    GiatrixeChu: numberToWords(xeData.Giatrixe),
+                    Tinh: extractProvince(nhansuData.Diachidaydu),
+                    Ngay: currentDate.day,
+                    Thang: currentDate.month === 1 || currentDate.month === 2 ?
+                        currentDate.month.toString().padStart(2, '0') : currentDate.month.toString(),
+                    Nam: currentDate.year,
+                    NgayGop: getCurrentDateComponents().day + '/' + getCurrentDateComponents().month + '/' + getCurrentDateComponents().year
+                };
+
+                // Populate HTML với dữ liệu
+                populateHTML(globalCertificateData);
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                hideLoadingMessage();
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Populate HTML with data
+        function populateHTML(data) {
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || '';
+                }
+            };
+
+            setText('tendonvi', data.Tendonvi);
+            setText('tendonvi-2', data.Tendonvi);
+            setText('sovanban', data.SoVanBan);
+            setText('tinh', data.Tinh);
+            setText('ngay', data.Ngay);
+            setText('thang', data.Thang);
+            setText('nam', data.Nam);
+            setText('diachi', data.Diachi);
+            setText('sogiaycndkkd', data.SogiayCNDKKD);
+            setText('noicapgcndkkd', data.NoicapGCNDKKD);
+            setText('ngaycapgcndkkd', data.NgaycapGCNDKKD);
+            setText('vondieule', data.Vondieule);
+            setText('hoten', data.Hoten);
+            setText('ngaysinh', data.Ngaysinh);
+            setText('socccd', data.NoCCCD);
+            setText('diachidaydu', data.Diachidaydu);
+            setText('giatrixe', data.Giatrixe);
+            setText('giatrixe-2', data.Giatrixe);
+            setText('bienso', data.Bienso);
+            setText('somay', data.Somay);
+            setText('sokhung', data.Sokhung);
+            setText('giatrixe-chu', data.GiatrixeChu);
+            setText('ngay-gop', data.NgayGop);
+            setText('nguoi-dai-dien', data.Nguoidaidien);
+        }
+
+        // Export to Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalCertificateData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                // URL template cho giấy chứng nhận vốn góp
+                const templateUrl = 'https://poalninh.github.io/templates/templates/xacnhanvongop_template.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                doc.setData(globalCertificateData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `GiayXacNhanVonGop_HTX_${globalCertificateData.Hoten || 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi xuất file Word:', error);
+                alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Initialize application
+        async function initialize() {
+            try {
+                const idHoSo = getIDHoSoFromURL();
+                if (!idHoSo) {
+                    alert('Vui lòng cung cấp IDHoSo trong URL. Ví dụ: ?IDHoSo=HS001');
+                    return;
+                }
+                await loadData();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
+        // Disable right-click and F12
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hợp Đồng Thuê Xe</title>
+
+    <!-- Thêm các thư viện cần thiết cho xuất Word -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 13px;
+            line-height: 1.6;
+            background: white;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Document styling */
+        .document-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .country-info {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .motto {
+            font-size: 13px;
+            text-decoration: underline;
+            margin-bottom: 30px;
+        }
+
+        .contract-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .contract-number {
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .legal-basis {
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .today-info {
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .party-section {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .party-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .party-info {
+            margin-left: 10px;
+            line-height: 1.8;
+        }
+
+        .agreement-text {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .article-title {
+            font-weight: bold;
+            margin: 20px 0 15px 0;
+            text-align: center;
+        }
+
+        .article-content {
+            margin-bottom: 15px;
+            text-indent: 0px;
+        }
+
+        .sub-content {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .signature-box {
+            width: 45%;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            margin-bottom: 80px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Content -->
+    <div class="document-header">
+        <div class="country-info">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+        <div class="motto">Độc lập - Tự do - Hạnh phúc</div>
+        <div style="height: 20px;"></div>
+
+        <div class="contract-title">HỢP ĐỒNG THUÊ XE</div>
+        <div class="contract-number">Số: <span id="sovanban">SoVanBan</span></div>
+    </div>
+
+    <div class="legal-basis">
+        <em>Căn cứ Luật Dân sự số 91/2015/QH13;</em><br>
+        <em>Căn cứ Luật Thương mại số 36/2005/QH11;</em><br>
+        <em>Căn cứ vào nhu cầu và khả năng cung ứng của các bên.</em>
+    </div>
+
+    <div class="today-info">
+        Hôm nay, ngày <span id="ngayky">NgayKy</span>, tại Văn phòng <span id="tendonvi">Tendonvi</span>, chúng tôi gồm:
+    </div>
+
+    <div class="party-section">
+        <div class="party-title">BÊN CHO THUÊ</div>
+        <div class="party-info">
+            Tên đơn vị: <span id="tensohuu">TenSoHuu</span>.<br><br>
+            Người đại diện theo pháp luật: <span id="nguoidaidienpl">NguoidaidienPL</span>.<br><br>
+            Địa chỉ: <span id="diachi-chusohuu">DiachiChuSoHuu</span>.<br><br>
+            (Trong hợp đồng gọi tắt là bên A)
+        </div>
+    </div>
+
+    <div class="party-section">
+        <div class="party-title">BÊN THUÊ XE</div>
+        <div class="party-info">
+            Tên đơn vị: <span id="tendonvi2">Tendonvi</span>.<br><br>
+            Địa chỉ: <span id="diachidaydu2">Diachidaydu</span>.<br><br>
+            Giấy chứng nhận đăng ký kinh doanh số: <span id="sogiaycndkkd">SogiayCNDKKD</span>.<br><br>
+            Người đại diện: <span id="nguoidaidien">Nguoidaidien</span> - Chức vụ: Giám đốc<br><br>
+            (Trong hợp đồng gọi tắt là bên B)
+        </div>
+    </div>
+
+    <div class="agreement-text">
+        Sau khi bàn bạc và thỏa thuận Bên A và Bên B thống nhất ký kết hợp đồng với các điều khoản sau:
+
+        <div class="article-title">Điều 1. Nội dung hợp đồng</div>
+        <div class="article-content">
+            Bên A đồng ý cho Bên B thuê chiếc xe, với thông tin xe cụ thể như sau:<br><br>
+            - Biển số: <span id="bienso">Bienso</span><br>
+            - Loại xe: <span id="loaixe">Loaixe</span><br>
+            - Số máy: <span id="somay">Somay</span><br>
+            - Số khung: <span id="sokhung">Sokhung</span>
+        </div>
+
+        <div class="article-title">Điều 2. Giá thuê xe và phương thức thanh toán</div>
+        <div class="article-content">
+            1. Giá thuê xe ô tô nêu tại Điều 1 của hợp đồng này là <span id="giathue">GiaThueXe</span> đồng/tháng
+            <em>(Viết bằng chữ: <span id="giathue-chu">GiaThueXe_chu</span> trên một tháng).</em><br><br>
+            2. Phương thức thanh toán: Bằng tiền mặt<br><br>
+            3. Việc thanh toán số tiền nêu trên do hai bên tự thực hiện và tự chịu trách nhiệm trước pháp luật.
+        </div>
+
+        <div class="article-title">Điều 3. Thời hạn thuê xe</div>
+        <div class="article-content">
+            Thời gian thuê xe kể từ ngày <span id="ngayhieuluc">NgayHieuLuc</span> đến ngày <span
+                id="ngayhethieuluc">NgayHetHieuLuc</span>.
+        </div>
+
+        <div class="article-title">Điều 4. Thời hạn, địa điểm và phương thức giao xe</div>
+        <div class="article-content">
+            Việc giao chiếc xe ô tô thuê tại Điều 1 của hợp đồng này cùng toàn bộ giấy tờ, tài liệu về chiếc xe trên do
+            hai bên tự thực hiện và tự chịu trách nhiệm trước pháp luật.
+        </div>
+
+        <div class="article-title">Điều 5. Quyền và nghĩa vụ hai bên</div>
+        <div class="article-content">
+            <strong>1. Quyền và nghĩa vụ bên A.</strong><br>
+            <div class="sub-content">
+                a) Bàn giao xe ô tô cho thuê và các giấy tờ liên quan cho bên B;<br>
+                b) Được nhận lại xe ô tô cho thuê và các giấy tờ liên quan từ bên B sau khi kết thúc hợp đồng này;<br>
+                c) Được nhận tiền thuê xe theo Điều 2 của hợp đồng này.
+            </div><br>
+
+            <strong>2. Quyền và nghĩa vụ của bên B</strong><br>
+            <div class="sub-content">
+                a) Nhận xe ô tô cho thuê và các giấy tờ liên quan đến chiếc xe ô tô cho thuê;<br>
+                b) Trả tiền thuê xe ô tô cho bên A theo Điều 2 của hợp đồng này;<br>
+                c) Trả lại xe ô tô thuê và các giấy tờ liên quan cho bên A sau khi kết thúc hợp đồng này;<br>
+                d) Tự chịu trách nhiệm trước pháp luật trong quá trình sử dụng xe ô tô;<br>
+                đ) Tự thanh toán và chịu trách nhiệm khi sửa chữa xe ô tô do bị hư hỏng trong thời gian sử dụng xe ô tô
+                thuê;<br>
+                e) Mọi chi phí để sử dụng xe ô tô thuê trong thời gian thuê do bên B tự chi trả.
+            </div>
+        </div>
+
+        <div class="article-title">Điều 6. Phương thức giải quyết tranh chấp</div>
+        <div class="article-content">
+            Trong quá trình thực hiện hợp đồng nếu phát sinh tranh chấp, các bên cùng nhau thương lượng giải quyết trên
+            nguyên tắc tôn trọng quyền lợi của nhau. Trong trường hợp không giải quyết được, thì một trong hai bên có
+            quyền khởi kiện để yêu cầu Tòa án có thẩm quyền giải quyết theo quy định của pháp luật.
+        </div>
+
+        <div class="article-title">Điều 7. Cam đoan của các bên</div>
+        <div class="article-content">
+            Bên A và bên B chịu trách nhiệm trước pháp luật về những lời cam đoan sau đây:<br><br>
+
+            <strong>1. Bên A cam đoan</strong><br>
+            <div class="sub-content">
+                a) Những thông tin về nhân thân, thông tin về chiếc xe ô tô thuê ghi trong hợp đồng này là đúng sự
+                thật;<br>
+                b) Toàn bộ các giấy tờ làm căn cứ để lập, trong hợp đồng này do bên A cung cấp, các giấy tờ này được cơ
+                quan có thẩm quyền cấp, không có sự giả mạo, tẩy xóa, thêm bớt làm sai lệch nội dung;<br>
+                c) Chiếc xe ô tô cho thuê không có tranh chấp, không bị cơ quan nhà nước có thẩm quyền xử lý theo quy
+                định của pháp luật;<br>
+                d) Ngoài hợp đồng thuê xe này, bên A cam đoan chưa lập bất kỳ một hợp đồng nào khác liên quan đến chiếc
+                xe ô tô nêu trên;<br>
+                đ) Việc giao kết hợp đồng này hoàn toàn tự nguyện, không bị lừa dối, không bị ép buộc;<br>
+                e) Thực hiện đúng và đầy đủ các thỏa thuận đã ghi trong hợp đồng này.
+            </div><br>
+
+            <strong>2. Bên B cam đoan</strong><br>
+            <div class="sub-content">
+                a) Những thông tin về nhân thân ghi trong hợp đồng này là đúng sự thật;<br>
+                b) Đã xem xét kỹ, biết rõ về chiếc xe ô tô cho thuê, đã xem xét kỹ các giấy tờ chứng minh về chiếc xe ô
+                tô, các giấy tờ này được cơ quan có thẩm quyền cấp, không có sự giả mạo, tẩy xóa, thêm bớt làm sai lệch
+                nội dung;<br>
+                c) Việc giao kết hợp đồng này hoàn toàn tự nguyện, không bị lừa dối hoặc ép buộc;<br>
+                d) Thực hiện đúng và đầy đủ các thỏa thuận đã ghi trong hợp đồng này.
+            </div>
+        </div>
+
+        <div class="article-title">Điều 8. Điều khoản cuối cùng</div>
+        <div class="article-content">
+            1. Hai bên đã đọc kỹ nguyên văn bản hợp đồng, đồng ý toàn bộ nội dung ghi trong hợp đồng này, hiểu rõ quyền,
+            nghĩa vụ, lợi ích hợp pháp của mình và hậu quả pháp lý của việc giao kết hợp đồng này;<br><br>
+            2. Hợp đồng này có hiệu lực từ ngày ký và coi như được thanh lý sau khi hai bên thực hiện xong nghĩa vụ của
+            mình và không còn bất kỳ khiếu nại nào;<br><br>
+            Hợp đồng được lập thành 02 bản có giá trị pháp lý như nhau, Bên A giữ 01 bản. Bên B giữ 01 bản;<br><br>
+            Hai bên thống nhất cùng ký tên dưới đây để làm bằng chứng.
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-title">BÊN A</div>
+            <div class="signature-name" id="tensohuu-ky">TenSoHuu</div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-title">BÊN B</div>
+            <div class="signature-name" id="nguoidaidien-donvi">Nguoidaidien</div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'c63948d1-e202-4400-a894-3e94f7f397f6';
+        const accessKey = 'V2-Kz8H5-XrQQD-xSHTJ-BXZqO-04jXl-AKoDb-Ub0SX-rBouU';
+        const region = 'www';
+        // Biến toàn cục để lưu dữ liệu
+        let globalContractData = null;
+
+        // Function to get IDHoSo from URL
+        function getIDHoSoFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('IDHoSo') || urlParams.get('idhoso');
+        }
+
+        // Function to fetch data from AppSheet
+        async function fetchAppSheetData(tableName, filter = null) {
+            try {
+                const selector = filter || `Filter(${tableName}, true)`;
+                console.log(`Executing selector for ${tableName}:`, selector);
+
+                const body = {
+                    Action: 'Find',
+                    Properties: {},
+                    Selector: selector
+                };
+
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(`Response for ${tableName}:`, data);
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error(`Failed to fetch ${tableName}:`, error);
+                throw error;
+            }
+        }
+
+        // Format số tiền thành chữ (tiếng Việt)
+        function convertNumberToWords(number) {
+            const ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
+            const teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
+
+            if (number === 0) return 'Không';
+
+            let result = '';
+
+            // Xử lý triệu
+            if (number >= 1000000) {
+                const millions = Math.floor(number / 1000000);
+                result += convertNumberToWords(millions) + ' triệu ';
+                number %= 1000000;
+            }
+
+            // Xử lý nghìn
+            if (number >= 1000) {
+                const thousands = Math.floor(number / 1000);
+                result += convertNumberToWords(thousands) + ' nghìn ';
+                number %= 1000;
+            }
+
+            // Xử lý trăm
+            if (number >= 100) {
+                result += ones[Math.floor(number / 100)] + ' trăm ';
+                number %= 100;
+            }
+
+            // Xử lý chục và đơn vị
+            if (number >= 20) {
+                result += tens[Math.floor(number / 10)] + ' ';
+                if (number % 10 !== 0) {
+                    result += ones[number % 10] + ' ';
+                }
+            } else if (number >= 10) {
+                result += teens[number - 10] + ' ';
+            } else if (number > 0) {
+                result += ones[number] + ' ';
+            }
+
+            // Viết hoa chữ cái đầu tiên
+            result = result.trim();
+            if (result.length > 0) {
+                result = result.charAt(0).toUpperCase() + result.slice(1);
+            }
+            return result;
+        }
+
+        // Format ngày dài cho hiển thị
+        function formatDateLongForWord(dateString) {
+            if (!dateString || dateString === '') {
+                const today = new Date();
+                const day = today.getDate().toString().padStart(2, '0');
+                const month = today.getMonth() + 1;
+                const year = today.getFullYear();
+
+                let formattedMonth;
+                if (month === 1 || month === 2) {
+                    formattedMonth = month.toString().padStart(2, '0');
+                } else {
+                    formattedMonth = month.toString();
+                }
+
+                return `${day} tháng ${formattedMonth} năm ${year}`;
+            }
+
+            let day, month, year;
+
+            if (typeof dateString === 'string' && dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    month = parseInt(parts[0]); // MM
+                    day = parseInt(parts[1]);   // dd  
+                    year = parseInt(parts[2]);  // yyyy
+                }
+            } else if (typeof dateString === 'string' && dateString.includes('-')) {
+                const parts = dateString.split('-');
+                if (parts.length === 3) {
+                    year = parseInt(parts[0]);
+                    month = parseInt(parts[1]);
+                    day = parseInt(parts[2]);
+                }
+            } else if (dateString instanceof Date) {
+                day = dateString.getDate();
+                month = dateString.getMonth() + 1;
+                year = dateString.getFullYear();
+            } else {
+                return dateString.toString();
+            }
+
+            if (!day || !month || !year || isNaN(day) || isNaN(month) || isNaN(year)) {
+                return dateString.toString();
+            }
+
+            const formattedDay = day.toString().padStart(2, '0');
+
+            let formattedMonth;
+            if (month === 1 || month === 2) {
+                formattedMonth = month.toString().padStart(2, '0');
+            } else {
+                formattedMonth = month.toString();
+            }
+
+            return `${formattedDay} tháng ${formattedMonth} năm ${year}`;
+        }
+
+        // Load data from AppSheet
+        async function loadData() {
+            try {
+                const idHoSo = getIDHoSoFromURL();
+                console.log('ID từ URL:', idHoSo);
+
+                if (!idHoSo) {
+                    throw new Error('Không tìm thấy IDHoSo trong URL');
+                }
+
+                // Fetch dữ liệu từ các bảng
+                const [hosoList, donviList, xeList, chusohuuList] = await Promise.all([
+                    fetchAppSheetData('HOSONHANSU', `Filter(HOSONHANSU, [IDHoSo] = "${idHoSo}")`),
+                    fetchAppSheetData('THONGTINDONVI'),
+                    fetchAppSheetData('THONGTINXE'),
+                    fetchAppSheetData('CHUSOHUU')
+                ]);
+
+                console.log('Tất cả dữ liệu CHUSOHUU:', chusohuuList);
+
+                if (!hosoList || hosoList.length === 0) {
+                    throw new Error('Không tìm thấy hồ sơ với ID này');
+                }
+
+                const hosoData = hosoList.find(item => item.IDHoSo === idHoSo);
+                if (!hosoData) {
+                    throw new Error(`Không tìm thấy ID "${idHoSo}"`);
+                }
+
+                const donviData = donviList.length > 0 ? donviList[0] : {};
+
+                // Tìm thông tin xe
+                const xeData = hosoData.Ref_Xe ?
+                    xeList.find(x => x.Idxe === hosoData.Ref_Xe) || {} : {};
+
+                console.log('Thông tin xe:', xeData);
+                console.log('Tendangkyxe trong xe:', xeData.Tendangkyxe);
+
+                // Tìm thông tin chủ sở hữu từ bảng CHUSOHUU thông qua Tendangkyxe của xe
+                let chusohuuData = {};
+                if (xeData.Tendangkyxe) {
+                    // Sử dụng tên cột chính xác: IDDonviquanly
+                    chusohuuData = chusohuuList.find(c => c.IDDonviquanly === xeData.Tendangkyxe) || {};
+                    console.log('Thông tin chủ sở hữu tìm được:', chusohuuData);
+                }
+
+                // Nếu vẫn không tìm được, thử lấy chủ sở hữu đầu tiên để test
+                if (Object.keys(chusohuuData).length === 0 && chusohuuList.length > 0) {
+                    console.log('Không tìm được chủ sở hữu, lấy bản ghi đầu tiên để test');
+                    chusohuuData = chusohuuList[0];
+                }
+
+                // Format giá thuê xe
+                const giaThue = hosoData.GiaThueXe || 0;
+                const giaThueFormatted = new Intl.NumberFormat('vi-VN').format(giaThue);
+                const giaThueWords = convertNumberToWords(giaThue);
+
+                // Lưu dữ liệu cho xuất Word - sử dụng tên cột chính xác từ bảng CHUSOHUU
+                globalContractData = {
+                    SoVanBan: hosoData.SoVanBan || '',
+                    NgayKy: formatDateLongForWord(hosoData.NgayKy),
+                    Tendonvi: donviData.Tendonvi || '',
+                    Nguoidaidien: donviData.Nguoidaidien || '',
+                    Diachidaydu: donviData.Diachi || '',
+                    SogiayCNDKKD: donviData.SogiayCNDKKD || '',
+
+                    // Dữ liệu từ bảng CHUSOHUU - sử dụng tên cột chính xác
+                    TenSoHuu: chusohuuData.TenSoHuu || '',
+                    NguoidaidienPL: chusohuuData.NguoidaidienPL || '',
+                    DiachiChuSoHuu: chusohuuData.Diachidaydu || '',
+                    SoGCNDKDN: chusohuuData.SoGCNDKDN || '',
+                    Sodienthoai: chusohuuData.Sodienthoai || '',
+
+                    // Dữ liệu xe - sử dụng tên cột chính xác
+                    Bienso: xeData.Bienso || '',
+                    Loaixe: xeData.Loaixe || '',
+                    Somay: xeData.Somay || '',
+                    Sokhung: xeData.Sokhung || '',
+
+                    // Dữ liệu từ HOSONHANSU
+                    GiaThueXe: giaThueFormatted,
+                    GiaThueXe_chu: giaThueWords,
+                    NgayHieuLuc: formatDateLongForWord(hosoData.NgayHieuLuc),
+                    NgayHetHieuLuc: formatDateLongForWord(hosoData.NgayHetHieuLuc)
+                };
+
+                console.log('Dữ liệu cuối cùng:', globalContractData);
+
+                // Populate HTML với dữ liệu
+                populateHTML(globalContractData);
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                hideLoadingMessage();
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Populate HTML with data
+        function populateHTML(data) {
+            // Helper function to safely set text content
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || '';
+                }
+            };
+
+            // Set all the data fields
+            setText('sovanban', data.SoVanBan);
+            setText('ngayky', data.NgayKy);
+            setText('tendonvi', data.Tendonvi);
+            setText('tendonvi2', data.Tendonvi);
+            setText('nguoidaidien', data.Nguoidaidien);
+            setText('nguoidaidien-donvi', data.Nguoidaidien);
+            setText('diachidaydu2', data.Diachidaydu);   // Địa chỉ đơn vị (Bên B)
+            setText('diachi-chusohuu', data.DiachiChuSoHuu); // Địa chỉ chủ sở hữu (Bên A)
+            setText('sogiaycndkkd', data.SogiayCNDKKD);
+
+            // Dữ liệu chủ sở hữu với tên cột chính xác
+            setText('tensohuu', data.TenSoHuu);
+            setText('tensohuu-ky', data.TenSoHuu);
+            setText('nguoidaidienpl', data.NguoidaidienPL);
+
+            // Dữ liệu xe
+            setText('bienso', data.Bienso);
+            setText('loaixe', data.Loaixe);
+            setText('somay', data.Somay);
+            setText('sokhung', data.Sokhung);
+
+            // Dữ liệu giá thuê và thời hạn
+            setText('giathue', data.GiaThueXe);
+            setText('giathue-chu', data.GiaThueXe_chu);
+            setText('ngayhieuluc', data.NgayHieuLuc);
+            setText('ngayhethieuluc', data.NgayHetHieuLuc);
+        }
+
+        // Export to Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalContractData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                // URL template cho hợp đồng thuê xe
+                const templateUrl = 'https://poalninh.github.io/templates/templates/hdthuexe_template.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true
+                });
+
+                doc.setData(globalContractData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `HopDongThueXe_${globalContractData.SoVanBan}_${globalContractData.TenSoHuu || 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('Lỗi xuất file Word:', error);
+                alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Initialize application
+        async function initialize() {
+            try {
+                const idHoSo = getIDHoSoFromURL();
+                if (!idHoSo) {
+                    alert('Vui lòng cung cấp IDHoSo trong URL. Ví dụ: ?IDHoSo=HS001');
+                    return;
+                }
+                await loadData();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
+        // Disable right-click and F12
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>
