@@ -270,7 +270,7 @@
         <div class="party-title">I. <span id="tendonvi3">Tendonvi</span> (Bên A)</div>
         <div class="party-info">
             - Đại diện: <span id="nguoidaidien">Nguoidaidien</span>;<br>
-            - Chức vụ: Giám đốc;<br>
+            - Chức vụ: <span id="chucvunguoidaidien">ChucvuNguoidaidien</span>;<br>
             - Địa chỉ: <span id="diachidaydu2">Diachidaydu</span>;<br>
             - Số điện thoại: <span id="sodt">SoDT</span>;<br>
             - Mã số thuế: <span id="masothue">Masothue</span>;<br>
@@ -513,6 +513,7 @@
                     NgayKy: formatDateLongForWord(hosoData.NgayKy),
                     Tendonvi: donviData.Tendonvi || '',
                     Nguoidaidien: donviData.Nguoidaidien || '',
+                    ChucvuNguoidaidien: donviData.ChucvuNguoidaidien || '',
                     Diachidaydu: donviData.Diachi || '',
                     SoDT: donviData.SoDT || '',
                     Masothue: donviData.SogiayCNDKKD || '',
@@ -557,6 +558,7 @@
             setText('diachidaydu2', data.Diachidaydu);
             setText('nguoidaidien', data.Nguoidaidien);
             setText('nguoidaidien2', data.Nguoidaidien);
+            setText('chucvunguoidaidien', data.ChucvuNguoidaidien);
             setText('sodt', data.SoDT);
             setText('masothue', data.Masothue);
             setText('sotk', data.SoTK);
@@ -589,7 +591,7 @@
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
                 // URL template cho hợp đồng dịch vụ
-                const templateUrl = 'https://poalninh.github.io/templates/templates/hddv_template.docx';
+                const templateUrl = 'https://poalninh.github.io/templates/templates/hddv_gialinh_template.docx';
                 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
