@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Báo Cáo Quản Lý Vận Tải</title>
+    <title>HTX VTTM Nội Thành</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -17,15 +17,14 @@
         <div class="max-w-7xl mx-auto px-4 py-6">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Hệ Thống Báo Cáo Quản Lý Vận Tải</h1>
-                    <p class="text-gray-600">Báo cáo phù hiệu và giấy phép lái xe</p>
+                    <h1 class="text-2xl font-bold text-gray-900">HTX VTTM Nội Thành</h1>
                 </div>
                 <div class="flex space-x-3">
                     <button id="refreshBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        <i class="fas fa-sync-alt mr-2"></i>Làm mới
+                        <i class="fas fa-sync-alt"></i>
                     </button>
                     <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                        <i class="fas fa-file-excel mr-2"></i>Xuất Excel
+                        <i class="fas fa-file-excel"></i>
                     </button>
                 </div>
             </div>
@@ -37,10 +36,14 @@
         <div class="bg-white rounded-lg shadow">
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button id="tabPhuHieu" class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="switchTab('phuHieu')">
+                    <button id="tabPhuHieu"
+                        class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm"
+                        onclick="switchTab('phuHieu')">
                         <i class="fas fa-id-card mr-2"></i>Phù Hiệu
                     </button>
-                    <button id="tabGPLX" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="switchTab('gplx')">
+                    <button id="tabGPLX"
+                        class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm"
+                        onclick="switchTab('gplx')">
                         <i class="fas fa-address-card mr-2"></i>Giấy Phép Lái Xe
                     </button>
                 </nav>
@@ -114,13 +117,13 @@
             <!-- Charts Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu Đồ Trạng Thái Phù Hiệu</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu đồ trạng thái phù hiệu</h3>
                     <div class="h-80">
                         <canvas id="statusChartPH"></canvas>
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Loại Phù Hiệu</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân loại phù hiệu</h3>
                     <div class="h-64">
                         <canvas id="typeChartPH"></canvas>
                     </div>
@@ -129,7 +132,7 @@
 
             <!-- Trend Chart -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu Hướng Cấp Phù Hiệu Theo Tháng</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu hướng cấp phù hiệu theo tháng</h3>
                 <div class="h-64">
                     <canvas id="trendChartPH"></canvas>
                 </div>
@@ -137,17 +140,19 @@
 
             <!-- Filters -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ Lọc Phù Hiệu</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ lọc phù hiệu</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Loại Phù Hiệu</label>
-                        <select id="typeFilterPH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Loại phù hiệu</label>
+                        <select id="typeFilterPH"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
-                        <select id="statusFilterPH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+                        <select id="statusFilterPH"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
                             <option value="Còn hiệu lực">Còn hiệu lực</option>
                             <option value="Hết hiệu lực">Hết hiệu lực</option>
@@ -155,12 +160,14 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ Ngày</label>
-                        <input type="date" id="fromDatePH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ ngày</label>
+                        <input type="date" id="fromDatePH"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến Ngày</label>
-                        <input type="date" id="toDatePH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến ngày</label>
+                        <input type="date" id="toDatePH"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="mt-4 flex space-x-2">
@@ -211,24 +218,31 @@
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('stt', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('stt', 'PH')">
                                     STT <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('SoPH', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('SoPH', 'PH')">
                                     Số phù hiệu <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Loaiphuhieu', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Loaiphuhieu', 'PH')">
                                     Loại phù hiệu <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Biển số xe</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Biển số xe
+                                </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tuyến</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaycap', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngaycap', 'PH')">
                                     Ngày cấp <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngayhethan', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngayhethan', 'PH')">
                                     Ngày hết hạn <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('TrangthaiPH', 'PH')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('TrangthaiPH', 'PH')">
                                     Trạng thái <i class="fas fa-sort ml-1"></i>
                                 </th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ghi chú</th>
@@ -241,17 +255,20 @@
 
                 <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        <button id="prevPageMobilePH" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="prevPageMobilePH"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Trước
                         </button>
-                        <button id="nextPageMobilePH" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="nextPageMobilePH"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Sau
                         </button>
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Hiển thị <span id="fromItemPH" class="font-medium">1</span> đến <span id="toItemPH" class="font-medium">10</span>
+                                Hiển thị <span id="fromItemPH" class="font-medium">1</span> đến <span id="toItemPH"
+                                    class="font-medium">10</span>
                                 của <span id="totalItemsPH" class="font-medium">0</span> kết quả
                             </p>
                         </div>
@@ -333,19 +350,19 @@
             <!-- Charts Row GPLX -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu Đồ Trạng Thái GPLX</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu đồ trạng thái GPLX</h3>
                     <div class="h-80">
                         <canvas id="statusChartGPLX"></canvas>
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Loại Hạng GPLX</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân loại hạng GPLX</h3>
                     <div class="h-64">
                         <canvas id="hangChartGPLX"></canvas>
                     </div>
                 </div>
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Tích Cơ Quan Cấp</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân tích cơ quan cấp</h3>
                     <div class="h-64">
                         <canvas id="coQuanCapChartGPLX"></canvas>
                     </div>
@@ -354,7 +371,7 @@
 
             <!-- Trend Chart GPLX -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu Hướng Cấp GPLX Theo Tháng</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu hướng cấp GPLX theo tháng</h3>
                 <div class="h-64">
                     <canvas id="trendChartGPLX"></canvas>
                 </div>
@@ -362,33 +379,38 @@
 
             <!-- Filters GPLX -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ Lọc GPLX</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ lọc GPLX</h3>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Hạng GPLX</label>
-                        <select id="hangFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="hangFilterGPLX"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Cơ Quan Cấp</label>
-                        <select id="coQuanCapFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cơ quan cấp</label>
+                        <select id="coQuanCapFilterGPLX"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
-                        <select id="statusFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+                        <select id="statusFilterGPLX"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ Ngày</label>
-                        <input type="date" id="fromDateGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ ngày</label>
+                        <input type="date" id="fromDateGPLX"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến Ngày</label>
-                        <input type="date" id="toDateGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến ngày</label>
+                        <input type="date" id="toDateGPLX"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="mt-4 flex space-x-2">
@@ -439,31 +461,40 @@
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('stt', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('stt', 'GPLX')">
                                     STT <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('soGPLX', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('soGPLX', 'GPLX')">
                                     Số GPLX <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Hoten', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Hoten', 'GPLX')">
                                     Họ tên <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Hang', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Hang', 'GPLX')">
                                     Hạng <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaysinh', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngaysinh', 'GPLX')">
                                     Ngày sinh <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaycap', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngaycap', 'GPLX')">
                                     Ngày cấp <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngayhethan', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngayhethan', 'GPLX')">
                                     Ngày hết hạn <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Coquancap', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Coquancap', 'GPLX')">
                                     Cơ quan cấp <i class="fas fa-sort ml-1"></i>
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Trangthai', 'GPLX')">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Trangthai', 'GPLX')">
                                     Trạng thái <i class="fas fa-sort ml-1"></i>
                                 </th>
                             </tr>
@@ -475,17 +506,20 @@
 
                 <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
                     <div class="flex-1 flex justify-between sm:hidden">
-                        <button id="prevPageMobileGPLX" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="prevPageMobileGPLX"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Trước
                         </button>
-                        <button id="nextPageMobileGPLX" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <button id="nextPageMobileGPLX"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                             Sau
                         </button>
                     </div>
                     <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                             <p class="text-sm text-gray-700">
-                                Hiển thị <span id="fromItemGPLX" class="font-medium">1</span> đến <span id="toItemGPLX" class="font-medium">10</span>
+                                Hiển thị <span id="fromItemGPLX" class="font-medium">1</span> đến <span id="toItemGPLX"
+                                    class="font-medium">10</span>
                                 của <span id="totalItemsGPLX" class="font-medium">0</span> kết quả
                             </p>
                         </div>
@@ -532,13 +566,13 @@
         // Tab switching
         function switchTab(tab) {
             currentTab = tab;
-            
+
             // Update tab buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('border-blue-500', 'text-blue-600');
                 btn.classList.add('border-transparent', 'text-gray-500');
             });
-            
+
             // Update content visibility
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -761,7 +795,7 @@
         // Update GPLX statistics
         function updateStatsGPLX() {
             const total = filteredDataGPLX.length;
-            const active = filteredDataGPLX.filter(item => 
+            const active = filteredDataGPLX.filter(item =>
                 (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length;
             const expired = filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length;
             const suspended = filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length;
@@ -1215,7 +1249,7 @@
             }
 
             const statusCounts = {
-                'Còn hiệu lực': filteredDataGPLX.filter(item => 
+                'Còn hiệu lực': filteredDataGPLX.filter(item =>
                     (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length,
                 'Sắp hết hạn': filteredDataGPLX.filter(item => item.isExpiring).length,
                 'Hết hiệu lực': filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length,
@@ -1439,7 +1473,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const label = context.label || '';
                                     const value = context.raw;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -2150,7 +2184,7 @@
             switchTab('phuHieu');
 
             // Global button events
-            document.getElementById('refreshBtn').addEventListener('click', function() {
+            document.getElementById('refreshBtn').addEventListener('click', function () {
                 if (currentTab === 'phuHieu') {
                     loadDataPH();
                 } else {
