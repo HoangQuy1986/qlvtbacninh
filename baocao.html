@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Báo Cáo Quản Lý Vận Tải</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Hệ Thống Báo Cáo Quản Lý Vận Tải</h1>
+                    <p class="text-gray-600">Báo cáo phù hiệu và giấy phép lái xe</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="refreshBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-sync-alt mr-2"></i>Làm mới
+                    </button>
+                    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        <i class="fas fa-file-excel mr-2"></i>Xuất Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="max-w-7xl mx-auto px-4 py-4">
+        <div class="bg-white rounded-lg shadow">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button id="tabPhuHieu" class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="switchTab('phuHieu')">
+                        <i class="fas fa-id-card mr-2"></i>Phù Hiệu
+                    </button>
+                    <button id="tabGPLX" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm" onclick="switchTab('gplx')">
+                        <i class="fas fa-address-card mr-2"></i>Giấy Phép Lái Xe
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Areas -->
+    <main class="max-w-7xl mx-auto px-4 pb-6">
+        <!-- Phù Hiệu Tab Content -->
+        <div id="phuHieuContent" class="tab-content">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <i class="fas fa-id-card text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Tổng phù hiệu</p>
+                            <p class="text-xl font-semibold" id="totalCountPH">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-full">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Còn hiệu lực</p>
+                            <p class="text-xl font-semibold text-green-600" id="activeCountPH">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-full">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Sắp hết hạn</p>
+                            <p class="text-xl font-semibold text-yellow-600" id="expiringCountPH">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <i class="fas fa-times-circle text-red-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Hết hiệu lực</p>
+                            <p class="text-xl font-semibold text-red-600" id="expiredCountPH">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-orange-100 rounded-full">
+                            <i class="fas fa-ban text-orange-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Bị thu hồi</p>
+                            <p class="text-xl font-semibold text-orange-600" id="revokedCountPH">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu Đồ Trạng Thái Phù Hiệu</h3>
+                    <div class="h-80">
+                        <canvas id="statusChartPH"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Loại Phù Hiệu</h3>
+                    <div class="h-64">
+                        <canvas id="typeChartPH"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu Hướng Cấp Phù Hiệu Theo Tháng</h3>
+                <div class="h-64">
+                    <canvas id="trendChartPH"></canvas>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ Lọc Phù Hiệu</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Loại Phù Hiệu</label>
+                        <select id="typeFilterPH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
+                        <select id="statusFilterPH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                            <option value="Còn hiệu lực">Còn hiệu lực</option>
+                            <option value="Hết hiệu lực">Hết hiệu lực</option>
+                            <option value="Bị thu hồi">Bị thu hồi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ Ngày</label>
+                        <input type="date" id="fromDatePH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến Ngày</label>
+                        <input type="date" id="toDatePH" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-2">
+                    <button id="applyFilterPH" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-filter mr-2"></i>Áp dụng
+                    </button>
+                    <button id="clearFilterPH" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                        <i class="fas fa-times mr-2"></i>Xóa lọc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                        <input type="text" id="searchInputPH" placeholder="Tìm kiếm theo số phù hiệu, biển số xe..."
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button id="searchBtnPH" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Table Phù Hiệu -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Danh sách phù hiệu</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Hiển thị:</span>
+                        <select id="itemsPerPagePH" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">mục/trang</span>
+                    </div>
+                </div>
+
+                <div id="loadingPH" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+                    <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+                </div>
+
+                <div id="tableContainerPH" class="hidden overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('stt', 'PH')">
+                                    STT <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('SoPH', 'PH')">
+                                    Số phù hiệu <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Loaiphuhieu', 'PH')">
+                                    Loại phù hiệu <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Biển số xe</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tuyến</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaycap', 'PH')">
+                                    Ngày cấp <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngayhethan', 'PH')">
+                                    Ngày hết hạn <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('TrangthaiPH', 'PH')">
+                                    Trạng thái <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyPH" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button id="prevPageMobilePH" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Trước
+                        </button>
+                        <button id="nextPageMobilePH" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Sau
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Hiển thị <span id="fromItemPH" class="font-medium">1</span> đến <span id="toItemPH" class="font-medium">10</span>
+                                của <span id="totalItemsPH" class="font-medium">0</span> kết quả
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationPH">
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorPH" class="hidden text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    <p class="mt-2 text-gray-600">Không thể tải dữ liệu. Vui lòng thử lại.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GPLX Tab Content -->
+        <div id="gplxContent" class="tab-content hidden">
+            <!-- Stats Cards GPLX -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <i class="fas fa-address-card text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Tổng GPLX</p>
+                            <p class="text-xl font-semibold" id="totalCountGPLX">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-full">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Còn hiệu lực</p>
+                            <p class="text-xl font-semibold text-green-600" id="activeCountGPLX">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-full">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Sắp hết hạn</p>
+                            <p class="text-xl font-semibold text-yellow-600" id="expiringCountGPLX">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <i class="fas fa-times-circle text-red-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Hết hiệu lực</p>
+                            <p class="text-xl font-semibold text-red-600" id="expiredCountGPLX">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-100 rounded-full">
+                            <i class="fas fa-pause-circle text-purple-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Tạm dừng</p>
+                            <p class="text-xl font-semibold text-purple-600" id="suspendedCountGPLX">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row GPLX -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu Đồ Trạng Thái GPLX</h3>
+                    <div class="h-80">
+                        <canvas id="statusChartGPLX"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Loại Hạng GPLX</h3>
+                    <div class="h-64">
+                        <canvas id="hangChartGPLX"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân Tích Cơ Quan Cấp</h3>
+                    <div class="h-64">
+                        <canvas id="coQuanCapChartGPLX"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Chart GPLX -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu Hướng Cấp GPLX Theo Tháng</h3>
+                <div class="h-64">
+                    <canvas id="trendChartGPLX"></canvas>
+                </div>
+            </div>
+
+            <!-- Filters GPLX -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ Lọc GPLX</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hạng GPLX</label>
+                        <select id="hangFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cơ Quan Cấp</label>
+                        <select id="coQuanCapFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng Thái</label>
+                        <select id="statusFilterGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Từ Ngày</label>
+                        <input type="date" id="fromDateGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Đến Ngày</label>
+                        <input type="date" id="toDateGPLX" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-2">
+                    <button id="applyFilterGPLX" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-filter mr-2"></i>Áp dụng
+                    </button>
+                    <button id="clearFilterGPLX" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                        <i class="fas fa-times mr-2"></i>Xóa lọc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search GPLX -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                        <input type="text" id="searchInputGPLX" placeholder="Tìm kiếm theo số GPLX, họ tên lái xe..."
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button id="searchBtnGPLX" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Table GPLX -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Danh sách giấy phép lái xe</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Hiển thị:</span>
+                        <select id="itemsPerPageGPLX" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">mục/trang</span>
+                    </div>
+                </div>
+
+                <div id="loadingGPLX" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+                    <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+                </div>
+
+                <div id="tableContainerGPLX" class="hidden overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('stt', 'GPLX')">
+                                    STT <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('soGPLX', 'GPLX')">
+                                    Số GPLX <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Hoten', 'GPLX')">
+                                    Họ tên <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Hang', 'GPLX')">
+                                    Hạng <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaysinh', 'GPLX')">
+                                    Ngày sinh <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngaycap', 'GPLX')">
+                                    Ngày cấp <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Ngayhethan', 'GPLX')">
+                                    Ngày hết hạn <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Coquancap', 'GPLX')">
+                                    Cơ quan cấp <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onclick="sortTable('Trangthai', 'GPLX')">
+                                    Trạng thái <i class="fas fa-sort ml-1"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyGPLX" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button id="prevPageMobileGPLX" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Trước
+                        </button>
+                        <button id="nextPageMobileGPLX" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Sau
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Hiển thị <span id="fromItemGPLX" class="font-medium">1</span> đến <span id="toItemGPLX" class="font-medium">10</span>
+                                của <span id="totalItemsGPLX" class="font-medium">0</span> kết quả
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationGPLX">
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorGPLX" class="hidden text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    <p class="mt-2 text-gray-600">Không thể tải dữ liệu. Vui lòng thử lại.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Configuration
+        const config = {
+            API_URL: 'https://api.appsheet.com/api/v2/apps/50b5e0e5-79c2-42b8-a3bd-095741190d4c/tables',
+            ACCESS_KEY: 'V2-Bwq7a-rGM2F-aX9Zj-8h4gC-0JdWA-IzAqM-mtJr7-jcuBw'
+        };
+
+        // Global variables
+        let currentTab = 'phuHieu';
+        let allDataPH = [];
+        let filteredDataPH = [];
+        let allDataGPLX = [];
+        let filteredDataGPLX = [];
+        let currentPagePH = 1;
+        let currentPageGPLX = 1;
+        let itemsPerPagePH = 10;
+        let itemsPerPageGPLX = 10;
+        let sortColumnPH = '';
+        let sortDirectionPH = 'asc';
+        let sortColumnGPLX = '';
+        let sortDirectionGPLX = 'asc';
+
+        // Charts
+        let statusChartPH, typeChartPH, trendChartPH, statusChartGPLX, hangChartGPLX, coQuanCapChartGPLX, trendChartGPLX;
+
+        // Tab switching
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Update content visibility
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            if (tab === 'phuHieu') {
+                document.getElementById('tabPhuHieu').classList.add('border-blue-500', 'text-blue-600');
+                document.getElementById('tabPhuHieu').classList.remove('border-transparent', 'text-gray-500');
+                document.getElementById('phuHieuContent').classList.remove('hidden');
+                if (allDataPH.length === 0) {
+                    loadDataPH();
+                }
+            } else {
+                document.getElementById('tabGPLX').classList.add('border-blue-500', 'text-blue-600');
+                document.getElementById('tabGPLX').classList.remove('border-transparent', 'text-gray-500');
+                document.getElementById('gplxContent').classList.remove('hidden');
+                if (allDataGPLX.length === 0) {
+                    loadDataGPLX();
+                }
+            }
+        }
+
+        // API Request Function
+        async function apiRequest(tableName, action, data = {}) {
+            try {
+                console.log(`Making API request to ${tableName} with action ${action}`);
+
+                const response = await fetch(`${config.API_URL}/${tableName}/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': config.ACCESS_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Action: action,
+                        Properties: {
+                            Locale: 'vi-VN',
+                            Timezone: 'Asia/Ho_Chi_Minh'
+                        },
+                        ...data
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log(`API response for ${tableName}:`, result);
+                return result;
+            } catch (error) {
+                console.error(`API request failed for ${tableName}:`, error);
+                throw error;
+            }
+        }
+
+        // Load Phù Hiệu data
+        async function loadDataPH() {
+            showLoading('PH');
+            try {
+                const phuHieuResponse = await apiRequest('THONGTINPHUHIEU', 'Find');
+                const xeResponse = await apiRequest('THONGTINXE', 'Find');
+                const tuyenResponse = await apiRequest('DANHMUCTUYENCODINH', 'Find');
+
+                // Create maps for joining data
+                const xeMap = {};
+                if (xeResponse && Array.isArray(xeResponse)) {
+                    xeResponse.forEach(xe => {
+                        xeMap[xe.Idxe] = xe;
+                    });
+                }
+
+                const tuyenMap = {};
+                if (tuyenResponse && Array.isArray(tuyenResponse)) {
+                    tuyenResponse.forEach(tuyen => {
+                        if (tuyen.MaSoTuyen) {
+                            tuyenMap[tuyen.MaSoTuyen] = tuyen;
+                        }
+                        tuyenMap[tuyen.id] = tuyen;
+                    });
+                }
+
+                // Join data
+                allDataPH = [];
+                if (phuHieuResponse && Array.isArray(phuHieuResponse)) {
+                    allDataPH = phuHieuResponse.map(phuHieu => {
+                        const xe = xeMap[phuHieu.Refxe] || {};
+                        const tuyen = tuyenMap[phuHieu.RefTuyenCD] || {};
+
+                        return {
+                            ...phuHieu,
+                            BienSoXe: xe.Bienso || '',
+                            NhanHieuXe: xe.Nhanhieu || '',
+                            LoaiXe: xe.Loaixe || '',
+                            TenTuyen: tuyen['Tên tuyến'] || tuyen.TenTuyen || '',
+                            BenDi: tuyen.BenDi || '',
+                            BenDen: tuyen.BenDen || '',
+                            HanhTrinh: tuyen.HanhTrinh || ''
+                        };
+                    });
+                }
+
+                if (allDataPH.length === 0) {
+                    showError('PH');
+                    return;
+                }
+
+                processDataPH();
+                updateStatsPH();
+                updateChartsPH();
+                updateFiltersPH();
+                applyFiltersPH();
+                showTable('PH');
+
+                console.log('Loaded Phù Hiệu data:', allDataPH.length, 'records');
+
+            } catch (error) {
+                console.error('Error loading Phù Hiệu data:', error);
+                showError('PH');
+            }
+        }
+
+        // Load GPLX data
+        async function loadDataGPLX() {
+            showLoading('GPLX');
+            try {
+                const gplxResponse = await apiRequest('THONGTINGPLX', 'Find');
+                const nhanSuResponse = await apiRequest('THONGTINNHANSU', 'Find');
+
+                // Create map for joining data
+                const nhanSuMap = {};
+                if (nhanSuResponse && Array.isArray(nhanSuResponse)) {
+                    nhanSuResponse.forEach(ns => {
+                        nhanSuMap[ns.IDNS] = ns;
+                    });
+                }
+
+                // Join data
+                allDataGPLX = [];
+                if (gplxResponse && Array.isArray(gplxResponse)) {
+                    allDataGPLX = gplxResponse.map(gplx => {
+                        const nhanSu = nhanSuMap[gplx.RefNhansu] || {};
+
+                        return {
+                            ...gplx,
+                            Hoten: nhanSu.Hoten || gplx.Scan_Hoten || '',
+                            Gioitinh: nhanSu.Gioitinh || '',
+                            Diachidaydu: nhanSu.Diachidaydu || '',
+                            Sodienthoai: nhanSu.Sodienthoai || '',
+                            Email: nhanSu.Email || ''
+                        };
+                    });
+                }
+
+                if (allDataGPLX.length === 0) {
+                    showError('GPLX');
+                    return;
+                }
+
+                processDataGPLX();
+                updateStatsGPLX();
+                updateChartsGPLX();
+                updateFiltersGPLX();
+                applyFiltersGPLX();
+                showTable('GPLX');
+
+                console.log('Loaded GPLX data:', allDataGPLX.length, 'records');
+
+            } catch (error) {
+                console.error('Error loading GPLX data:', error);
+                showError('GPLX');
+            }
+        }
+
+        // Process Phù Hiệu data
+        function processDataPH() {
+            allDataPH.forEach(item => {
+                if (item.Ngayhethan && item.TrangthaiPH === 'Còn hiệu lực') {
+                    const expireDate = new Date(item.Ngayhethan);
+                    const today = new Date();
+                    const daysToExpire = Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24));
+
+                    if (daysToExpire <= 30 && daysToExpire > 0) {
+                        item.isExpiring = true;
+                    }
+                }
+            });
+        }
+
+        // Process GPLX data
+        function processDataGPLX() {
+            allDataGPLX.forEach(item => {
+                if (item.Ngayhethan && (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai)) {
+                    const expireDate = new Date(item.Ngayhethan);
+                    const today = new Date();
+                    const daysToExpire = Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24));
+
+                    if (daysToExpire <= 30 && daysToExpire > 0) {
+                        item.isExpiring = true;
+                    }
+                }
+            });
+        }
+
+        // Update Phù Hiệu statistics
+        function updateStatsPH() {
+            const total = filteredDataPH.length;
+            const active = filteredDataPH.filter(item => item.TrangthaiPH === 'Còn hiệu lực' && !item.isExpiring).length;
+            const expired = filteredDataPH.filter(item => item.TrangthaiPH === 'Hết hiệu lực').length;
+            const revoked = filteredDataPH.filter(item => item.TrangthaiPH === 'Bị thu hồi').length;
+            const expiring = filteredDataPH.filter(item => item.isExpiring).length;
+
+            document.getElementById('totalCountPH').textContent = total;
+            document.getElementById('activeCountPH').textContent = active;
+            document.getElementById('expiredCountPH').textContent = expired;
+            document.getElementById('revokedCountPH').textContent = revoked;
+            document.getElementById('expiringCountPH').textContent = expiring;
+        }
+
+        // Update GPLX statistics
+        function updateStatsGPLX() {
+            const total = filteredDataGPLX.length;
+            const active = filteredDataGPLX.filter(item => 
+                (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length;
+            const expired = filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length;
+            const suspended = filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length;
+            const expiring = filteredDataGPLX.filter(item => item.isExpiring).length;
+
+            document.getElementById('totalCountGPLX').textContent = total;
+            document.getElementById('activeCountGPLX').textContent = active;
+            document.getElementById('expiredCountGPLX').textContent = expired;
+            document.getElementById('suspendedCountGPLX').textContent = suspended;
+            document.getElementById('expiringCountGPLX').textContent = expiring;
+        }
+
+        // Update charts for Phù Hiệu
+        function updateChartsPH() {
+            updateStatusChartPH();
+            updateTypeChartPH();
+            updateTrendChartPH();
+        }
+
+        // Update charts for GPLX
+        function updateChartsGPLX() {
+            updateStatusChartGPLX();
+            updateHangChartGPLX();
+            updateCoQuanCapChartGPLX();
+            updateTrendChartGPLX();
+        }
+
+        // Status chart for Phù Hiệu with connector lines
+        function updateStatusChartPH() {
+            const ctx = document.getElementById('statusChartPH').getContext('2d');
+
+            if (statusChartPH) {
+                statusChartPH.destroy();
+            }
+
+            const statusCounts = {
+                'Còn hiệu lực': filteredDataPH.filter(item => item.TrangthaiPH === 'Còn hiệu lực' && !item.isExpiring).length,
+                'Sắp hết hạn': filteredDataPH.filter(item => item.isExpiring).length,
+                'Hết hiệu lực': filteredDataPH.filter(item => item.TrangthaiPH === 'Hết hiệu lực').length,
+                'Bị thu hồi': filteredDataPH.filter(item => item.TrangthaiPH === 'Bị thu hồi').length
+            };
+
+            const filteredStatusCounts = {};
+            const filteredLabels = [];
+            const filteredColors = [];
+            const colorMap = {
+                'Còn hiệu lực': '#10b981',
+                'Sắp hết hạn': '#f59e0b',
+                'Hết hiệu lực': '#ef4444',
+                'Bị thu hồi': '#f97316'
+            };
+
+            Object.keys(statusCounts).forEach(key => {
+                if (statusCounts[key] > 0) {
+                    filteredStatusCounts[key] = statusCounts[key];
+                    filteredLabels.push(key);
+                    filteredColors.push(colorMap[key]);
+                }
+            });
+
+            if (filteredLabels.length === 0) {
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Không có dữ liệu', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            statusChartPH = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: Object.values(filteredStatusCounts),
+                        backgroundColor: filteredColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '40%',
+                    layout: {
+                        padding: {
+                            top: 80,
+                            bottom: 80,
+                            left: 120,
+                            right: 120
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        drawConnectorLinesImproved(chart);
+                    }
+                }]
+            });
+        }
+
+        // Connector lines function for doughnut charts
+        function drawConnectorLinesImproved(chart) {
+            const ctx = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            const dataset = chart.data.datasets[0];
+            const centerX = chart.width / 2;
+            const centerY = chart.height / 2;
+
+            const labelPositions = [];
+
+            meta.data.forEach((element, index) => {
+                const model = element;
+                const startAngle = model.startAngle;
+                const endAngle = model.endAngle;
+                const midAngle = (startAngle + endAngle) / 2;
+
+                const labelRadius = model.outerRadius + 60;
+                const labelX = centerX + Math.cos(midAngle) * labelRadius;
+                const labelY = centerY + Math.sin(midAngle) * labelRadius;
+
+                labelPositions.push({
+                    element,
+                    midAngle,
+                    labelX,
+                    labelY,
+                    index
+                });
+            });
+
+            // Adjust label positions to avoid overlap
+            labelPositions.forEach((pos, i) => {
+                for (let j = i + 1; j < labelPositions.length; j++) {
+                    const other = labelPositions[j];
+                    const distance = Math.sqrt(
+                        Math.pow(pos.labelX - other.labelX, 2) +
+                        Math.pow(pos.labelY - other.labelY, 2)
+                    );
+
+                    if (distance < 80) {
+                        const angle = Math.atan2(other.labelY - pos.labelY, other.labelX - pos.labelX);
+                        other.labelX = pos.labelX + Math.cos(angle) * 80;
+                        other.labelY = pos.labelY + Math.sin(angle) * 80;
+                    }
+                }
+            });
+
+            // Draw connector lines and labels
+            labelPositions.forEach(pos => {
+                const { element, midAngle, labelX, labelY, index } = pos;
+
+                const startX = centerX + Math.cos(midAngle) * element.outerRadius;
+                const startY = centerY + Math.sin(midAngle) * element.outerRadius;
+                const midX = centerX + Math.cos(midAngle) * (element.outerRadius + 40);
+                const midY = centerY + Math.sin(midAngle) * (element.outerRadius + 20);
+                const endX = midX + (Math.cos(midAngle) > 0 ? 30 : -30);
+                const endY = midY;
+
+                // Draw connector line
+                ctx.strokeStyle = dataset.backgroundColor[index];
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(midX, midY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                // Draw end point
+                ctx.fillStyle = dataset.backgroundColor[index];
+                ctx.beginPath();
+                ctx.arc(endX, endY, 3, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw label
+                const label = chart.data.labels[index];
+                const value = dataset.data[index];
+                const total = dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 13px Arial';
+                ctx.textAlign = Math.cos(midAngle) > 0 ? 'left' : 'right';
+                ctx.textBaseline = 'middle';
+
+                const textX = endX;
+                const textY = endY - 20;
+
+                const mainText = `${label}: ${value}`;
+                ctx.fillText(mainText, textX, textY - 8);
+
+                ctx.font = '11px Arial';
+                ctx.fillStyle = '#6b7280';
+                const subText = `(${percentage}%)`;
+                ctx.fillText(subText, textX, textY + 8);
+            });
+        }
+
+        // Type chart for Phù Hiệu with numbers on top
+        function updateTypeChartPH() {
+            const ctx = document.getElementById('typeChartPH').getContext('2d');
+
+            if (typeChartPH) {
+                typeChartPH.destroy();
+            }
+
+            const typeCounts = {};
+            filteredDataPH.forEach(item => {
+                const type = item.Loaiphuhieu || 'Không xác định';
+                typeCounts[type] = (typeCounts[type] || 0) + 1;
+            });
+
+            const labels = Object.keys(typeCounts);
+            const data = Object.values(typeCounts);
+
+            typeChartPH = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: data,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#1d4ed8',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                const x = element.x;
+                                const y = element.y - 8;
+
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = 'bold 16px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, x, y);
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Trend chart for Phù Hiệu
+        function updateTrendChartPH() {
+            const ctx = document.getElementById('trendChartPH').getContext('2d');
+
+            if (trendChartPH) {
+                trendChartPH.destroy();
+            }
+
+            const monthCounts = {};
+            filteredDataPH.forEach(item => {
+                if (item.Ngaycap) {
+                    const date = new Date(item.Ngaycap);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthCounts).sort();
+            const labels = sortedMonths.map(month => {
+                const [year, monthNum] = month.split('-');
+                return `${monthNum}/${year}`;
+            });
+            const data = sortedMonths.map(month => monthCounts[month]);
+
+            trendChartPH = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số phù hiệu cấp mới',
+                        data: data,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                font: {
+                                    size: 14
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Số lượng phù hiệu',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Thời gian',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                if (data > 0) {
+                                    const x = element.x;
+                                    const y = element.y - 15;
+
+                                    ctx.fillStyle = '#4c1d95';
+                                    ctx.font = 'bold 14px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                                    ctx.fillText(data, x, y);
+                                }
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Status chart for GPLX with connector lines
+        function updateStatusChartGPLX() {
+            const ctx = document.getElementById('statusChartGPLX').getContext('2d');
+
+            if (statusChartGPLX) {
+                statusChartGPLX.destroy();
+            }
+
+            const statusCounts = {
+                'Còn hiệu lực': filteredDataGPLX.filter(item => 
+                    (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length,
+                'Sắp hết hạn': filteredDataGPLX.filter(item => item.isExpiring).length,
+                'Hết hiệu lực': filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length,
+                'Tạm dừng': filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length
+            };
+
+            const filteredStatusCounts = {};
+            const filteredLabels = [];
+            const filteredColors = [];
+            const colorMap = {
+                'Còn hiệu lực': '#10b981',
+                'Sắp hết hạn': '#f59e0b',
+                'Hết hiệu lực': '#ef4444',
+                'Tạm dừng': '#8b5cf6'
+            };
+
+            Object.keys(statusCounts).forEach(key => {
+                if (statusCounts[key] > 0) {
+                    filteredStatusCounts[key] = statusCounts[key];
+                    filteredLabels.push(key);
+                    filteredColors.push(colorMap[key]);
+                }
+            });
+
+            if (filteredLabels.length === 0) {
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Không có dữ liệu', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            statusChartGPLX = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: Object.values(filteredStatusCounts),
+                        backgroundColor: filteredColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '40%',
+                    layout: {
+                        padding: {
+                            top: 80,
+                            bottom: 80,
+                            left: 120,
+                            right: 120
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        drawConnectorLinesImproved(chart);
+                    }
+                }]
+            });
+        }
+
+        // Hang chart for GPLX with numbers on top
+        function updateHangChartGPLX() {
+            const ctx = document.getElementById('hangChartGPLX').getContext('2d');
+
+            if (hangChartGPLX) {
+                hangChartGPLX.destroy();
+            }
+
+            const hangCounts = {};
+            filteredDataGPLX.forEach(item => {
+                const hang = item.Hang || 'Không xác định';
+                hangCounts[hang] = (hangCounts[hang] || 0) + 1;
+            });
+
+            const labels = Object.keys(hangCounts);
+            const data = Object.values(hangCounts);
+
+            hangChartGPLX = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: data,
+                        backgroundColor: '#8b5cf6',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                const x = element.x;
+                                const y = element.y - 8;
+
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = 'bold 16px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, x, y);
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Co quan cap chart for GPLX
+        function updateCoQuanCapChartGPLX() {
+            const ctx = document.getElementById('coQuanCapChartGPLX').getContext('2d');
+
+            if (coQuanCapChartGPLX) {
+                coQuanCapChartGPLX.destroy();
+            }
+
+            const coQuanCounts = {};
+            filteredDataGPLX.forEach(item => {
+                const coQuan = item.Coquancap || 'Không xác định';
+                coQuanCounts[coQuan] = (coQuanCounts[coQuan] || 0) + 1;
+            });
+
+            const labels = Object.keys(coQuanCounts);
+            const data = Object.values(coQuanCounts);
+
+            coQuanCapChartGPLX = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6',
+                            '#ec4899', '#f97316', '#84cc16', '#06b6d4', '#6366f1'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Trend chart for GPLX
+        function updateTrendChartGPLX() {
+            const ctx = document.getElementById('trendChartGPLX').getContext('2d');
+
+            if (trendChartGPLX) {
+                trendChartGPLX.destroy();
+            }
+
+            const monthCounts = {};
+            filteredDataGPLX.forEach(item => {
+                if (item.Ngaycap) {
+                    const date = new Date(item.Ngaycap);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
+                }
+            });
+
+            const sortedMonths = Object.keys(monthCounts).sort();
+            const labels = sortedMonths.map(month => {
+                const [year, monthNum] = month.split('-');
+                return `${monthNum}/${year}`;
+            });
+            const data = sortedMonths.map(month => monthCounts[month]);
+
+            trendChartGPLX = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số GPLX cấp mới',
+                        data: data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                font: {
+                                    size: 14
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Số lượng GPLX',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Thời gian',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                if (data > 0) {
+                                    const x = element.x;
+                                    const y = element.y - 15;
+
+                                    ctx.fillStyle = '#047857';
+                                    ctx.font = 'bold 14px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+                                    ctx.fillText(data, x, y);
+                                }
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Update filter options for Phù Hiệu
+        function updateFiltersPH() {
+            const typeFilter = document.getElementById('typeFilterPH');
+            const types = [...new Set(allDataPH.map(item => item.Loaiphuhieu))].filter(Boolean);
+
+            typeFilter.innerHTML = '<option value="">Tất cả</option>';
+            types.forEach(type => {
+                typeFilter.innerHTML += `<option value="${type}">${type}</option>`;
+            });
+        }
+
+        // Update filter options for GPLX
+        function updateFiltersGPLX() {
+            const hangFilter = document.getElementById('hangFilterGPLX');
+            const coQuanCapFilter = document.getElementById('coQuanCapFilterGPLX');
+            const statusFilter = document.getElementById('statusFilterGPLX');
+
+            const hangs = [...new Set(allDataGPLX.map(item => item.Hang))].filter(Boolean);
+            const coQuanCaps = [...new Set(allDataGPLX.map(item => item.Coquancap))].filter(Boolean);
+            const statuses = [...new Set(allDataGPLX.map(item => item.Trangthai))].filter(Boolean);
+
+            hangFilter.innerHTML = '<option value="">Tất cả</option>';
+            hangs.forEach(hang => {
+                hangFilter.innerHTML += `<option value="${hang}">${hang}</option>`;
+            });
+
+            coQuanCapFilter.innerHTML = '<option value="">Tất cả</option>';
+            coQuanCaps.forEach(coQuan => {
+                coQuanCapFilter.innerHTML += `<option value="${coQuan}">${coQuan}</option>`;
+            });
+
+            statusFilter.innerHTML = '<option value="">Tất cả</option>';
+            statuses.forEach(status => {
+                statusFilter.innerHTML += `<option value="${status}">${status}</option>`;
+            });
+        }
+
+        // Apply filters for Phù Hiệu
+        function applyFiltersPH() {
+            const typeFilter = document.getElementById('typeFilterPH').value;
+            const statusFilter = document.getElementById('statusFilterPH').value;
+            const fromDate = document.getElementById('fromDatePH').value;
+            const toDate = document.getElementById('toDatePH').value;
+            const searchTerm = document.getElementById('searchInputPH').value.toLowerCase();
+
+            filteredDataPH = allDataPH.filter(item => {
+                let match = true;
+
+                if (typeFilter && item.Loaiphuhieu !== typeFilter) {
+                    match = false;
+                }
+
+                if (statusFilter && item.TrangthaiPH !== statusFilter) {
+                    match = false;
+                }
+
+                if (fromDate && item.Ngaycap && new Date(item.Ngaycap) < new Date(fromDate)) {
+                    match = false;
+                }
+
+                if (toDate && item.Ngaycap && new Date(item.Ngaycap) > new Date(toDate)) {
+                    match = false;
+                }
+
+                if (searchTerm) {
+                    const searchFields = [
+                        item.SoPH,
+                        item.BienSoXe,
+                        item.Loaiphuhieu,
+                        item.TenTuyen
+                    ].join(' ').toLowerCase();
+
+                    if (!searchFields.includes(searchTerm)) {
+                        match = false;
+                    }
+                }
+
+                return match;
+            });
+
+            currentPagePH = 1;
+            updateStatsPH();
+            updateChartsPH();
+            renderTablePH();
+        }
+
+        // Apply filters for GPLX
+        function applyFiltersGPLX() {
+            const hangFilter = document.getElementById('hangFilterGPLX').value;
+            const coQuanCapFilter = document.getElementById('coQuanCapFilterGPLX').value;
+            const statusFilter = document.getElementById('statusFilterGPLX').value;
+            const fromDate = document.getElementById('fromDateGPLX').value;
+            const toDate = document.getElementById('toDateGPLX').value;
+            const searchTerm = document.getElementById('searchInputGPLX').value.toLowerCase();
+
+            filteredDataGPLX = allDataGPLX.filter(item => {
+                let match = true;
+
+                if (hangFilter && item.Hang !== hangFilter) {
+                    match = false;
+                }
+
+                if (coQuanCapFilter && item.Coquancap !== coQuanCapFilter) {
+                    match = false;
+                }
+
+                if (statusFilter && item.Trangthai !== statusFilter) {
+                    match = false;
+                }
+
+                if (fromDate && item.Ngaycap && new Date(item.Ngaycap) < new Date(fromDate)) {
+                    match = false;
+                }
+
+                if (toDate && item.Ngaycap && new Date(item.Ngaycap) > new Date(toDate)) {
+                    match = false;
+                }
+
+                if (searchTerm) {
+                    const searchFields = [
+                        item.soGPLX,
+                        item.Hoten,
+                        item.Hang,
+                        item.Coquancap
+                    ].join(' ').toLowerCase();
+
+                    if (!searchFields.includes(searchTerm)) {
+                        match = false;
+                    }
+                }
+
+                return match;
+            });
+
+            currentPageGPLX = 1;
+            updateStatsGPLX();
+            updateChartsGPLX();
+            renderTableGPLX();
+        }
+
+        // Clear filters for Phù Hiệu
+        function clearFiltersPH() {
+            document.getElementById('typeFilterPH').value = '';
+            document.getElementById('statusFilterPH').value = '';
+            document.getElementById('fromDatePH').value = '';
+            document.getElementById('toDatePH').value = '';
+            document.getElementById('searchInputPH').value = '';
+
+            filteredDataPH = [...allDataPH];
+            currentPagePH = 1;
+            updateStatsPH();
+            updateChartsPH();
+            renderTablePH();
+        }
+
+        // Clear filters for GPLX
+        function clearFiltersGPLX() {
+            document.getElementById('hangFilterGPLX').value = '';
+            document.getElementById('coQuanCapFilterGPLX').value = '';
+            document.getElementById('statusFilterGPLX').value = '';
+            document.getElementById('fromDateGPLX').value = '';
+            document.getElementById('toDateGPLX').value = '';
+            document.getElementById('searchInputGPLX').value = '';
+
+            filteredDataGPLX = [...allDataGPLX];
+            currentPageGPLX = 1;
+            updateStatsGPLX();
+            updateChartsGPLX();
+            renderTableGPLX();
+        }
+
+        // Sort table
+        function sortTable(column, type) {
+            if (type === 'PH') {
+                if (sortColumnPH === column) {
+                    sortDirectionPH = sortDirectionPH === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumnPH = column;
+                    sortDirectionPH = 'asc';
+                }
+
+                filteredDataPH.sort((a, b) => {
+                    let valueA, valueB;
+
+                    switch (column) {
+                        case 'stt':
+                            valueA = filteredDataPH.indexOf(a);
+                            valueB = filteredDataPH.indexOf(b);
+                            break;
+                        case 'Ngaycap':
+                        case 'Ngayhethan':
+                            valueA = new Date(a[column] || '1900-01-01');
+                            valueB = new Date(b[column] || '1900-01-01');
+                            break;
+                        default:
+                            valueA = (a[column] || '').toString().toLowerCase();
+                            valueB = (b[column] || '').toString().toLowerCase();
+                            break;
+                    }
+
+                    if (valueA < valueB) return sortDirectionPH === 'asc' ? -1 : 1;
+                    if (valueA > valueB) return sortDirectionPH === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                renderTablePH();
+            } else {
+                if (sortColumnGPLX === column) {
+                    sortDirectionGPLX = sortDirectionGPLX === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumnGPLX = column;
+                    sortDirectionGPLX = 'asc';
+                }
+
+                filteredDataGPLX.sort((a, b) => {
+                    let valueA, valueB;
+
+                    switch (column) {
+                        case 'stt':
+                            valueA = filteredDataGPLX.indexOf(a);
+                            valueB = filteredDataGPLX.indexOf(b);
+                            break;
+                        case 'Ngaycap':
+                        case 'Ngayhethan':
+                        case 'Ngaysinh':
+                            valueA = new Date(a[column] || '1900-01-01');
+                            valueB = new Date(b[column] || '1900-01-01');
+                            break;
+                        default:
+                            valueA = (a[column] || '').toString().toLowerCase();
+                            valueB = (b[column] || '').toString().toLowerCase();
+                            break;
+                    }
+
+                    if (valueA < valueB) return sortDirectionGPLX === 'asc' ? -1 : 1;
+                    if (valueA > valueB) return sortDirectionGPLX === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                renderTableGPLX();
+            }
+        }
+
+        // Render table for Phù Hiệu
+        function renderTablePH() {
+            const tbody = document.getElementById('tableBodyPH');
+            const startIndex = (currentPagePH - 1) * itemsPerPagePH;
+            const endIndex = startIndex + itemsPerPagePH;
+            const pageData = filteredDataPH.slice(startIndex, endIndex);
+
+            tbody.innerHTML = '';
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.SoPH || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Loaiphuhieu || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.BienSoXe || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.TenTuyen || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassPH(item)}">
+                            ${getStatusTextPH(item)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${item.Ghichu || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePaginationPH();
+        }
+
+        // Render table for GPLX
+        function renderTableGPLX() {
+            const tbody = document.getElementById('tableBodyGPLX');
+            const startIndex = (currentPageGPLX - 1) * itemsPerPageGPLX;
+            const endIndex = startIndex + itemsPerPageGPLX;
+            const pageData = filteredDataGPLX.slice(startIndex, endIndex);
+
+            tbody.innerHTML = '';
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.soGPLX || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hang || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Coquancap || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassGPLX(item)}">
+                            ${getStatusTextGPLX(item)}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePaginationGPLX();
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                return new Date(dateString).toLocaleDateString('vi-VN');
+            } catch {
+                return dateString;
+            }
+        }
+
+        function getStatusClassPH(item) {
+            if (item.isExpiring) {
+                return 'bg-yellow-100 text-yellow-800';
+            }
+            switch (item.TrangthaiPH) {
+                case 'Còn hiệu lực':
+                    return 'bg-green-100 text-green-800';
+                case 'Hết hiệu lực':
+                    return 'bg-red-100 text-red-800';
+                case 'Bị thu hồi':
+                    return 'bg-orange-100 text-orange-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getStatusTextPH(item) {
+            if (item.isExpiring && item.TrangthaiPH === 'Còn hiệu lực') {
+                return 'Sắp hết hạn';
+            }
+            return item.TrangthaiPH || '';
+        }
+
+        function getStatusClassGPLX(item) {
+            if (item.isExpiring) {
+                return 'bg-yellow-100 text-yellow-800';
+            }
+            switch (item.Trangthai) {
+                case 'Còn hiệu lực':
+                    return 'bg-green-100 text-green-800';
+                case 'Hết hiệu lực':
+                    return 'bg-red-100 text-red-800';
+                case 'Tạm dừng':
+                    return 'bg-purple-100 text-purple-800';
+                default:
+                    return 'bg-green-100 text-green-800';
+            }
+        }
+
+        function getStatusTextGPLX(item) {
+            if (item.isExpiring && (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai)) {
+                return 'Sắp hết hạn';
+            }
+            return item.Trangthai || 'Còn hiệu lực';
+        }
+
+        // Pagination for Phù Hiệu
+        function updatePaginationPH() {
+            const totalPages = Math.ceil(filteredDataPH.length / itemsPerPagePH);
+            const startItem = (currentPagePH - 1) * itemsPerPagePH + 1;
+            const endItem = Math.min(currentPagePH * itemsPerPagePH, filteredDataPH.length);
+
+            document.getElementById('fromItemPH').textContent = filteredDataPH.length > 0 ? startItem : 0;
+            document.getElementById('toItemPH').textContent = endItem;
+            document.getElementById('totalItemsPH').textContent = filteredDataPH.length;
+
+            generatePagination('paginationPH', currentPagePH, totalPages, (page) => {
+                currentPagePH = page;
+                renderTablePH();
+            });
+
+            document.getElementById('prevPageMobilePH').disabled = currentPagePH === 1;
+            document.getElementById('nextPageMobilePH').disabled = currentPagePH === totalPages;
+        }
+
+        // Pagination for GPLX
+        function updatePaginationGPLX() {
+            const totalPages = Math.ceil(filteredDataGPLX.length / itemsPerPageGPLX);
+            const startItem = (currentPageGPLX - 1) * itemsPerPageGPLX + 1;
+            const endItem = Math.min(currentPageGPLX * itemsPerPageGPLX, filteredDataGPLX.length);
+
+            document.getElementById('fromItemGPLX').textContent = filteredDataGPLX.length > 0 ? startItem : 0;
+            document.getElementById('toItemGPLX').textContent = endItem;
+            document.getElementById('totalItemsGPLX').textContent = filteredDataGPLX.length;
+
+            generatePagination('paginationGPLX', currentPageGPLX, totalPages, (page) => {
+                currentPageGPLX = page;
+                renderTableGPLX();
+            });
+
+            document.getElementById('prevPageMobileGPLX').disabled = currentPageGPLX === 1;
+            document.getElementById('nextPageMobileGPLX').disabled = currentPageGPLX === totalPages;
+        }
+
+        // Generate pagination buttons
+        function generatePagination(containerId, currentPage, totalPages, onPageClick) {
+            const pagination = document.getElementById(containerId);
+            pagination.innerHTML = '';
+
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.className = `relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''}`;
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => currentPage > 1 && onPageClick(currentPage - 1);
+            pagination.appendChild(prevBtn);
+
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === currentPage ? 'z-10 bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`;
+                pageBtn.onclick = () => onPageClick(i);
+                pagination.appendChild(pageBtn);
+            }
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.className = `relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''}`;
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => currentPage < totalPages && onPageClick(currentPage + 1);
+            pagination.appendChild(nextBtn);
+        }
+
+        // UI functions
+        function showLoading(type) {
+            document.getElementById(`loading${type}`).classList.remove('hidden');
+            document.getElementById(`tableContainer${type}`).classList.add('hidden');
+            document.getElementById(`error${type}`).classList.add('hidden');
+        }
+
+        function showTable(type) {
+            document.getElementById(`loading${type}`).classList.add('hidden');
+            document.getElementById(`tableContainer${type}`).classList.remove('hidden');
+            document.getElementById(`error${type}`).classList.add('hidden');
+        }
+
+        function showError(type) {
+            document.getElementById(`loading${type}`).classList.add('hidden');
+            document.getElementById(`tableContainer${type}`).classList.add('hidden');
+            const errorDiv = document.getElementById(`error${type}`);
+            errorDiv.classList.remove('hidden');
+            errorDiv.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    <p class="mt-2 text-gray-600">Không thể kết nối đến API hoặc không có dữ liệu.</p>
+                    <p class="text-sm text-gray-500 mt-1">Vui lòng kiểm tra kết nối mạng và thử lại.</p>
+                    <button onclick="${type === 'PH' ? 'loadDataPH()' : 'loadDataGPLX()'}" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        Thử lại
+                    </button>
+                </div>
+            `;
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            if (currentTab === 'phuHieu') {
+                exportPhuHieuToExcel();
+            } else {
+                exportGPLXToExcel();
+            }
+        }
+
+        function exportPhuHieuToExcel() {
+            const exportData = filteredDataPH.map((item, index) => ({
+                'STT': index + 1,
+                'Số phù hiệu': item.SoPH || '',
+                'Loại phù hiệu': item.Loaiphuhieu || '',
+                'Biển số xe': item.BienSoXe || '',
+                'Tuyến': item.TenTuyen || '',
+                'Ngày cấp': item.Ngaycap || '',
+                'Ngày hết hạn': item.Ngayhethan || '',
+                'Trạng thái': getStatusTextPH(item),
+                'Ghi chú': item.Ghichu || ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Danh sách phù hiệu');
+
+            // Add summary statistics
+            const summaryData = [
+                ['THỐNG KÊ TỔNG QUAN'],
+                ['Tổng số phù hiệu:', filteredDataPH.length],
+                ['Còn hiệu lực:', filteredDataPH.filter(item => item.TrangthaiPH === 'Còn hiệu lực' && !item.isExpiring).length],
+                ['Sắp hết hạn:', filteredDataPH.filter(item => item.isExpiring).length],
+                ['Hết hiệu lực:', filteredDataPH.filter(item => item.TrangthaiPH === 'Hết hiệu lực').length],
+                ['Bị thu hồi:', filteredDataPH.filter(item => item.TrangthaiPH === 'Bị thu hồi').length],
+                [''],
+                ['Ngày xuất báo cáo:', new Date().toLocaleDateString('vi-VN')],
+                ['']
+            ];
+
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
+
+            const fileName = `Bao-cao-phu-hieu-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function exportGPLXToExcel() {
+            const exportData = filteredDataGPLX.map((item, index) => ({
+                'STT': index + 1,
+                'Số GPLX': item.soGPLX || '',
+                'Họ tên': item.Hoten || '',
+                'Hạng': item.Hang || '',
+                'Ngày sinh': item.Ngaysinh || '',
+                'Ngày cấp': item.Ngaycap || '',
+                'Ngày hết hạn': item.Ngayhethan || '',
+                'Cơ quan cấp': item.Coquancap || '',
+                'Trạng thái': getStatusTextGPLX(item)
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Danh sách GPLX');
+
+            // Add summary statistics
+            const summaryData = [
+                ['THỐNG KÊ TỔNG QUAN'],
+                ['Tổng số GPLX:', filteredDataGPLX.length],
+                ['Còn hiệu lực:', filteredDataGPLX.filter(item => (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length],
+                ['Sắp hết hạn:', filteredDataGPLX.filter(item => item.isExpiring).length],
+                ['Hết hiệu lực:', filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length],
+                ['Tạm dừng:', filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length],
+                [''],
+                ['Ngày xuất báo cáo:', new Date().toLocaleDateString('vi-VN')],
+                ['']
+            ];
+
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
+
+            const fileName = `Bao-cao-GPLX-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize with Phù Hiệu tab
+            switchTab('phuHieu');
+
+            // Global button events
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                if (currentTab === 'phuHieu') {
+                    loadDataPH();
+                } else {
+                    loadDataGPLX();
+                }
+            });
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+
+            // Phù Hiệu events
+            document.getElementById('applyFilterPH').addEventListener('click', applyFiltersPH);
+            document.getElementById('clearFilterPH').addEventListener('click', clearFiltersPH);
+            document.getElementById('searchBtnPH').addEventListener('click', applyFiltersPH);
+            document.getElementById('searchInputPH').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') applyFiltersPH();
+            });
+            document.getElementById('itemsPerPagePH').addEventListener('change', function () {
+                itemsPerPagePH = parseInt(this.value);
+                currentPagePH = 1;
+                renderTablePH();
+            });
+
+            // GPLX events
+            document.getElementById('applyFilterGPLX').addEventListener('click', applyFiltersGPLX);
+            document.getElementById('clearFilterGPLX').addEventListener('click', clearFiltersGPLX);
+            document.getElementById('searchBtnGPLX').addEventListener('click', applyFiltersGPLX);
+            document.getElementById('searchInputGPLX').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') applyFiltersGPLX();
+            });
+            document.getElementById('itemsPerPageGPLX').addEventListener('change', function () {
+                itemsPerPageGPLX = parseInt(this.value);
+                currentPageGPLX = 1;
+                renderTableGPLX();
+            });
+
+            // Mobile pagination events
+            document.getElementById('prevPageMobilePH').addEventListener('click', () => {
+                if (currentPagePH > 1) {
+                    currentPagePH--;
+                    renderTablePH();
+                }
+            });
+            document.getElementById('nextPageMobilePH').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredDataPH.length / itemsPerPagePH);
+                if (currentPagePH < totalPages) {
+                    currentPagePH++;
+                    renderTablePH();
+                }
+            });
+            document.getElementById('prevPageMobileGPLX').addEventListener('click', () => {
+                if (currentPageGPLX > 1) {
+                    currentPageGPLX--;
+                    renderTableGPLX();
+                }
+            });
+            document.getElementById('nextPageMobileGPLX').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredDataGPLX.length / itemsPerPageGPLX);
+                if (currentPageGPLX < totalPages) {
+                    currentPageGPLX++;
+                    renderTableGPLX();
+                }
+            });
+
+            // Auto refresh every 5 minutes
+            setInterval(() => {
+                if (currentTab === 'phuHieu' && allDataPH.length > 0) {
+                    loadDataPH();
+                } else if (currentTab === 'gplx' && allDataGPLX.length > 0) {
+                    loadDataGPLX();
+                }
+            }, 5 * 60 * 1000);
+        });
+
+        // Security measures
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>
