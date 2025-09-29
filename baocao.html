@@ -46,6 +46,11 @@
                         onclick="switchTab('gplx')">
                         <i class="fas fa-address-card mr-2"></i>Giấy Phép Lái Xe
                     </button>
+                    <button id="tabNhanSu"
+                        class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm"
+                        onclick="switchTab('nhanSu')">
+                        <i class="fas fa-users mr-2"></i>Nhân Sự
+                    </button>
                 </nav>
             </div>
         </div>
@@ -530,6 +535,255 @@
                 </div>
             </div>
         </div>
+
+        <!-- Nhân Sự Tab Content -->
+        <div id="nhanSuContent" class="tab-content hidden">
+            <!-- Stats Cards Nhân Sự -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <i class="fas fa-users text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Tổng nhân sự</p>
+                            <p class="text-xl font-semibold" id="totalCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-full">
+                            <i class="fas fa-user-check text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Đang làm việc</p>
+                            <p class="text-xl font-semibold text-green-600" id="activeCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-full">
+                            <i class="fas fa-pause-circle text-yellow-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Tạm nghỉ</p>
+                            <p class="text-xl font-semibold text-yellow-600" id="pausedCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <i class="fas fa-user-times text-red-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Đã nghỉ việc</p>
+                            <p class="text-xl font-semibold text-red-600" id="inactiveCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-100 rounded-full">
+                            <i class="fas fa-user-tie text-purple-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Nam</p>
+                            <p class="text-xl font-semibold text-purple-600" id="maleCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row Nhân Sự -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Biểu đồ trạng thái nhân sự</h3>
+                    <div class="h-80">
+                        <canvas id="statusChartNS"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Phân loại chức vụ</h3>
+                    <div class="h-64">
+                        <canvas id="chucVuChartNS"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gender & Education Chart -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Giới tính</h3>
+                    <div class="h-64">
+                        <canvas id="genderChartNS"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Trình độ</h3>
+                    <div class="h-64">
+                        <canvas id="educationChartNS"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Nhân Sự -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Bộ lọc nhân sự</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Chức vụ</label>
+                        <select id="chucVuFilterNS"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Giới tính</label>
+                        <select id="genderFilterNS"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trình độ</label>
+                        <select id="trinhDoFilterNS"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trạng thái</label>
+                        <select id="statusFilterNS"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tỉnh/Thành phố</label>
+                        <select id="tinhFilterNS"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex space-x-2">
+                    <button id="applyFilterNS" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-filter mr-2"></i>Áp dụng
+                    </button>
+                    <button id="clearFilterNS" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                        <i class="fas fa-times mr-2"></i>Xóa lọc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Nhân Sự -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1">
+                        <input type="text" id="searchInputNS" placeholder="Tìm kiếm theo họ tên, CCCD, số điện thoại..."
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button id="searchBtnNS" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Table Nhân Sự -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Danh sách nhân sự</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Hiển thị:</span>
+                        <select id="itemsPerPageNS" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-gray-600">mục/trang</span>
+                    </div>
+                </div>
+
+                <div id="loadingNS" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+                    <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+                </div>
+
+                <div id="tableContainerNS" class="hidden overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('stt', 'NS')">
+                                    STT <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('IDNS', 'NS')">
+                                    Mã NV <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Hoten', 'NS')">
+                                    Họ tên <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Ngaysinh', 'NS')">
+                                    Ngày sinh <i class="fas fa-sort ml-1"></i>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giới tính
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chức vụ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trình độ
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số điện
+                                    thoại</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                                    onclick="sortTable('Trangthai', 'NS')">
+                                    Trạng thái <i class="fas fa-sort ml-1"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyNS" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button id="prevPageMobileNS"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Trước
+                        </button>
+                        <button id="nextPageMobileNS"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Sau
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Hiển thị <span id="fromItemNS" class="font-medium">1</span> đến <span id="toItemNS"
+                                    class="font-medium">10</span>
+                                của <span id="totalItemsNS" class="font-medium">0</span> kết quả
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationNS">
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="errorNS" class="hidden text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    <p class="mt-2 text-gray-600">Không thể tải dữ liệu. Vui lòng thử lại.</p>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -545,17 +799,24 @@
         let filteredDataPH = [];
         let allDataGPLX = [];
         let filteredDataGPLX = [];
+        let allDataNS = [];
+        let filteredDataNS = [];
         let currentPagePH = 1;
         let currentPageGPLX = 1;
+        let currentPageNS = 1;
         let itemsPerPagePH = 10;
         let itemsPerPageGPLX = 10;
+        let itemsPerPageNS = 10;
         let sortColumnPH = '';
         let sortDirectionPH = 'asc';
         let sortColumnGPLX = '';
         let sortDirectionGPLX = 'asc';
+        let sortColumnNS = '';
+        let sortDirectionNS = 'asc';
 
         // Charts
         let statusChartPH, typeChartPH, trendChartPH, statusChartGPLX, hangChartGPLX, trendChartGPLX;
+        let statusChartNS, chucVuChartNS, genderChartNS, educationChartNS;
 
         // Tab switching
         function switchTab(tab) {
@@ -579,12 +840,19 @@
                 if (allDataPH.length === 0) {
                     loadDataPH();
                 }
-            } else {
+            } else if (tab === 'gplx') {
                 document.getElementById('tabGPLX').classList.add('border-blue-500', 'text-blue-600');
                 document.getElementById('tabGPLX').classList.remove('border-transparent', 'text-gray-500');
                 document.getElementById('gplxContent').classList.remove('hidden');
                 if (allDataGPLX.length === 0) {
                     loadDataGPLX();
+                }
+            } else if (tab === 'nhanSu') {
+                document.getElementById('tabNhanSu').classList.add('border-blue-500', 'text-blue-600');
+                document.getElementById('tabNhanSu').classList.remove('border-transparent', 'text-gray-500');
+                document.getElementById('nhanSuContent').classList.remove('hidden');
+                if (allDataNS.length === 0) {
+                    loadDataNS();
                 }
             }
         }
@@ -741,6 +1009,36 @@
             }
         }
 
+        // Load Nhân Sự data
+        async function loadDataNS() {
+            showLoading('NS');
+            try {
+                const nhanSuResponse = await apiRequest('THONGTINNHANSU', 'Find');
+
+                allDataNS = [];
+                if (nhanSuResponse && Array.isArray(nhanSuResponse)) {
+                    allDataNS = nhanSuResponse;
+                }
+
+                if (allDataNS.length === 0) {
+                    showError('NS');
+                    return;
+                }
+
+                updateStatsNS();
+                updateChartsNS();
+                updateFiltersNS();
+                applyFiltersNS();
+                showTable('NS');
+
+                console.log('Loaded Nhân Sự data:', allDataNS.length, 'records');
+
+            } catch (error) {
+                console.error('Error loading Nhân Sự data:', error);
+                showError('NS');
+            }
+        }
+
         // Process Phù Hiệu data
         function processDataPH() {
             allDataPH.forEach(item => {
@@ -802,6 +1100,22 @@
             document.getElementById('expiringCountGPLX').textContent = expiring;
         }
 
+        // Update Nhân Sự statistics
+        function updateStatsNS() {
+            const total = filteredDataNS.length;
+            const active = filteredDataNS.filter(item =>
+                item.Trangthai === 'Đang làm việc' || !item.Trangthai).length;
+            const paused = filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length;
+            const inactive = filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length;
+            const male = filteredDataNS.filter(item => item.Gioitinh === 'Nam').length;
+
+            document.getElementById('totalCountNS').textContent = total;
+            document.getElementById('activeCountNS').textContent = active;
+            document.getElementById('pausedCountNS').textContent = paused;
+            document.getElementById('inactiveCountNS').textContent = inactive;
+            document.getElementById('maleCountNS').textContent = male;
+        }
+
         // Update charts for Phù Hiệu
         function updateChartsPH() {
             updateStatusChartPH();
@@ -814,6 +1128,14 @@
             updateStatusChartGPLX();
             updateHangChartGPLX();
             updateTrendChartGPLX();
+        }
+
+        // Update charts for Nhân Sự
+        function updateChartsNS() {
+            updateStatusChartNS();
+            updateChucVuChartNS();
+            updateGenderChartNS();
+            updateEducationChartNS();
         }
 
         // Status chart for Phù Hiệu with connector lines
@@ -1555,6 +1877,350 @@
             });
         }
 
+        // Status chart for Nhân Sự
+        function updateStatusChartNS() {
+            const ctx = document.getElementById('statusChartNS').getContext('2d');
+
+            if (statusChartNS) {
+                statusChartNS.destroy();
+            }
+
+            const statusCounts = {
+                'Đang làm việc': filteredDataNS.filter(item => item.Trangthai === 'Đang làm việc' || !item.Trangthai).length,
+                'Tạm nghỉ': filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length,
+                'Đã nghỉ việc': filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length
+            };
+
+            const filteredStatusCounts = {};
+            const filteredLabels = [];
+            const filteredColors = [];
+            const colorMap = {
+                'Đang làm việc': '#10b981',
+                'Tạm nghỉ': '#f59e0b',
+                'Đã nghỉ việc': '#ef4444'
+            };
+
+            Object.keys(statusCounts).forEach(key => {
+                if (statusCounts[key] > 0) {
+                    filteredStatusCounts[key] = statusCounts[key];
+                    filteredLabels.push(key);
+                    filteredColors.push(colorMap[key]);
+                }
+            });
+
+            if (filteredLabels.length === 0) {
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Không có dữ liệu', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+
+            statusChartNS = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: Object.values(filteredStatusCounts),
+                        backgroundColor: filteredColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '40%',
+                    layout: {
+                        padding: {
+                            top: 80,
+                            bottom: 80,
+                            left: 120,
+                            right: 120
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        drawConnectorLinesImproved(chart);
+                    }
+                }]
+            });
+        }
+
+        // Chuc Vu chart
+        function updateChucVuChartNS() {
+            const ctx = document.getElementById('chucVuChartNS').getContext('2d');
+
+            if (chucVuChartNS) {
+                chucVuChartNS.destroy();
+            }
+
+            const chucVuCounts = {};
+            filteredDataNS.forEach(item => {
+                // Chức vụ có thể là EnumList (nhiều giá trị), xử lý theo array
+                const chucVus = item.Chucvu ? item.Chucvu.toString().split(',') : ['Không xác định'];
+                chucVus.forEach(cv => {
+                    const chucvu = cv.trim() || 'Không xác định';
+                    chucVuCounts[chucvu] = (chucVuCounts[chucvu] || 0) + 1;
+                });
+            });
+
+            const labels = Object.keys(chucVuCounts);
+            const data = Object.values(chucVuCounts);
+
+            chucVuChartNS = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: data,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#1d4ed8',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 30
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                const x = element.x;
+                                const y = element.y - 8;
+
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = 'bold 16px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, x, y);
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
+        // Gender chart
+        function updateGenderChartNS() {
+            const ctx = document.getElementById('genderChartNS').getContext('2d');
+
+            if (genderChartNS) {
+                genderChartNS.destroy();
+            }
+
+            const genderCounts = {};
+            filteredDataNS.forEach(item => {
+                const gender = item.Gioitinh || 'Không xác định';
+                genderCounts[gender] = (genderCounts[gender] || 0) + 1;
+            });
+
+            const labels = Object.keys(genderCounts);
+            const data = Object.values(genderCounts);
+            const colors = ['#3b82f6', '#ec4899', '#6b7280'];
+
+            genderChartNS = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Education chart
+        function updateEducationChartNS() {
+            const ctx = document.getElementById('educationChartNS').getContext('2d');
+
+            if (educationChartNS) {
+                educationChartNS.destroy();
+            }
+
+            const educationCounts = {};
+            filteredDataNS.forEach(item => {
+                const education = item.Trinhdo || 'Không xác định';
+                educationCounts[education] = (educationCounts[education] || 0) + 1;
+            });
+
+            const labels = Object.keys(educationCounts);
+            const data = Object.values(educationCounts);
+
+            educationChartNS = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng',
+                        data: data,
+                        backgroundColor: '#8b5cf6',
+                        borderColor: '#7c3aed',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    layout: {
+                        padding: {
+                            right: 40
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function (chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                const x = element.x + 10;
+                                const y = element.y;
+
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = 'bold 14px Arial';
+                                ctx.textAlign = 'left';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(data, x, y);
+                            });
+                        });
+                    }
+                }]
+            });
+        }
+
         // Update filter options for Phù Hiệu
         function updateFiltersPH() {
             const typeFilter = document.getElementById('typeFilterPH');
@@ -1589,6 +2255,56 @@
             statusFilter.innerHTML = '<option value="">Tất cả</option>';
             statuses.forEach(status => {
                 statusFilter.innerHTML += `<option value="${status}">${status}</option>`;
+            });
+        }
+
+        // Update filter options for Nhân Sự
+        function updateFiltersNS() {
+            const chucVuFilter = document.getElementById('chucVuFilterNS');
+            const genderFilter = document.getElementById('genderFilterNS');
+            const trinhDoFilter = document.getElementById('trinhDoFilterNS');
+            const statusFilter = document.getElementById('statusFilterNS');
+            const tinhFilter = document.getElementById('tinhFilterNS');
+
+            // Chức vụ
+            const chucVus = new Set();
+            allDataNS.forEach(item => {
+                if (item.Chucvu) {
+                    const cvList = item.Chucvu.toString().split(',');
+                    cvList.forEach(cv => chucVus.add(cv.trim()));
+                }
+            });
+            chucVuFilter.innerHTML = '<option value="">Tất cả</option>';
+            [...chucVus].filter(Boolean).sort().forEach(cv => {
+                chucVuFilter.innerHTML += `<option value="${cv}">${cv}</option>`;
+            });
+
+            // Giới tính
+            const genders = [...new Set(allDataNS.map(item => item.Gioitinh))].filter(Boolean);
+            genderFilter.innerHTML = '<option value="">Tất cả</option>';
+            genders.forEach(gender => {
+                genderFilter.innerHTML += `<option value="${gender}">${gender}</option>`;
+            });
+
+            // Trình độ
+            const trinhDos = [...new Set(allDataNS.map(item => item.Trinhdo))].filter(Boolean);
+            trinhDoFilter.innerHTML = '<option value="">Tất cả</option>';
+            trinhDos.forEach(td => {
+                trinhDoFilter.innerHTML += `<option value="${td}">${td}</option>`;
+            });
+
+            // Trạng thái
+            const statuses = [...new Set(allDataNS.map(item => item.Trangthai))].filter(Boolean);
+            statusFilter.innerHTML = '<option value="">Tất cả</option>';
+            statuses.forEach(status => {
+                statusFilter.innerHTML += `<option value="${status}">${status}</option>`;
+            });
+
+            // Tỉnh/Thành phố
+            const tinhs = [...new Set(allDataNS.map(item => item.Tinhmoi))].filter(Boolean);
+            tinhFilter.innerHTML = '<option value="">Tất cả</option>';
+            tinhs.forEach(tinh => {
+                tinhFilter.innerHTML += `<option value="${tinh}">${tinh}</option>`;
             });
         }
 
@@ -1695,6 +2411,66 @@
             renderTableGPLX();
         }
 
+        // Apply filters for Nhân Sự
+        function applyFiltersNS() {
+            const chucVuFilter = document.getElementById('chucVuFilterNS').value;
+            const genderFilter = document.getElementById('genderFilterNS').value;
+            const trinhDoFilter = document.getElementById('trinhDoFilterNS').value;
+            const statusFilter = document.getElementById('statusFilterNS').value;
+            const tinhFilter = document.getElementById('tinhFilterNS').value;
+            const searchTerm = document.getElementById('searchInputNS').value.toLowerCase();
+
+            filteredDataNS = allDataNS.filter(item => {
+                let match = true;
+
+                if (chucVuFilter && item.Chucvu) {
+                    const chucVus = item.Chucvu.toString().split(',').map(cv => cv.trim());
+                    if (!chucVus.includes(chucVuFilter)) {
+                        match = false;
+                    }
+                } else if (chucVuFilter) {
+                    match = false;
+                }
+
+                if (genderFilter && item.Gioitinh !== genderFilter) {
+                    match = false;
+                }
+
+                if (trinhDoFilter && item.Trinhdo !== trinhDoFilter) {
+                    match = false;
+                }
+
+                if (statusFilter && item.Trangthai !== statusFilter) {
+                    match = false;
+                }
+
+                if (tinhFilter && item.Tinhmoi !== tinhFilter) {
+                    match = false;
+                }
+
+                if (searchTerm) {
+                    const searchFields = [
+                        item.IDNS,
+                        item.Hoten,
+                        item.NoCCCD,
+                        item.Sodienthoai,
+                        item.Email
+                    ].join(' ').toLowerCase();
+
+                    if (!searchFields.includes(searchTerm)) {
+                        match = false;
+                    }
+                }
+
+                return match;
+            });
+
+            currentPageNS = 1;
+            updateStatsNS();
+            updateChartsNS();
+            renderTableNS();
+        }
+
         // Clear filters for Phù Hiệu
         function clearFiltersPH() {
             document.getElementById('typeFilterPH').value = '';
@@ -1724,6 +2500,22 @@
             updateStatsGPLX();
             updateChartsGPLX();
             renderTableGPLX();
+        }
+
+        // Clear filters for Nhân Sự
+        function clearFiltersNS() {
+            document.getElementById('chucVuFilterNS').value = '';
+            document.getElementById('genderFilterNS').value = '';
+            document.getElementById('trinhDoFilterNS').value = '';
+            document.getElementById('statusFilterNS').value = '';
+            document.getElementById('tinhFilterNS').value = '';
+            document.getElementById('searchInputNS').value = '';
+
+            filteredDataNS = [...allDataNS];
+            currentPageNS = 1;
+            updateStatsNS();
+            updateChartsNS();
+            renderTableNS();
         }
 
         // Sort table
@@ -1761,7 +2553,7 @@
                 });
 
                 renderTablePH();
-            } else {
+            } else if (type === 'GPLX') {
                 if (sortColumnGPLX === column) {
                     sortDirectionGPLX = sortDirectionGPLX === 'asc' ? 'desc' : 'asc';
                 } else {
@@ -1795,6 +2587,38 @@
                 });
 
                 renderTableGPLX();
+            } else if (type === 'NS') {
+                if (sortColumnNS === column) {
+                    sortDirectionNS = sortDirectionNS === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortColumnNS = column;
+                    sortDirectionNS = 'asc';
+                }
+
+                filteredDataNS.sort((a, b) => {
+                    let valueA, valueB;
+
+                    switch (column) {
+                        case 'stt':
+                            valueA = filteredDataNS.indexOf(a);
+                            valueB = filteredDataNS.indexOf(b);
+                            break;
+                        case 'Ngaysinh':
+                            valueA = new Date(a[column] || '1900-01-01');
+                            valueB = new Date(b[column] || '1900-01-01');
+                            break;
+                        default:
+                            valueA = (a[column] || '').toString().toLowerCase();
+                            valueB = (b[column] || '').toString().toLowerCase();
+                            break;
+                    }
+
+                    if (valueA < valueB) return sortDirectionNS === 'asc' ? -1 : 1;
+                    if (valueA > valueB) return sortDirectionNS === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                renderTableNS();
             }
         }
 
@@ -1811,20 +2635,20 @@
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
                 row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.SoPH || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Loaiphuhieu || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.BienSoXe || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.TenTuyen || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassPH(item)}">
-                            ${getStatusTextPH(item)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${item.Ghichu || ''}</td>
-                `;
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.SoPH || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Loaiphuhieu || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.BienSoXe || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.TenTuyen || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassPH(item)}">
+                        ${getStatusTextPH(item)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${item.Ghichu || ''}</td>
+            `;
                 tbody.appendChild(row);
             });
 
@@ -1844,24 +2668,58 @@
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
                 row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.soGPLX || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hang || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Coquancap || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassGPLX(item)}">
-                            ${getStatusTextGPLX(item)}
-                        </span>
-                    </td>
-                `;
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.soGPLX || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hang || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Coquancap || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassGPLX(item)}">
+                        ${getStatusTextGPLX(item)}
+                    </span>
+                </td>
+            `;
                 tbody.appendChild(row);
             });
 
             updatePaginationGPLX();
+        }
+
+        // Render table for Nhân Sự
+        function renderTableNS() {
+            const tbody = document.getElementById('tableBodyNS');
+            const startIndex = (currentPageNS - 1) * itemsPerPageNS;
+            const endIndex = startIndex + itemsPerPageNS;
+            const pageData = filteredDataNS.slice(startIndex, endIndex);
+
+            tbody.innerHTML = '';
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.IDNS || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Gioitinh || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Chucvu || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Trinhdo || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Sodienthoai || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Email || ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassNS(item)}">
+                        ${item.Trangthai || 'Đang làm việc'}
+                    </span>
+                </td>
+            `;
+                tbody.appendChild(row);
+            });
+
+            updatePaginationNS();
         }
 
         // Helper functions
@@ -1920,6 +2778,19 @@
             return item.Trangthai || 'Còn hiệu lực';
         }
 
+        function getStatusClassNS(item) {
+            switch (item.Trangthai) {
+                case 'Đang làm việc':
+                    return 'bg-green-100 text-green-800';
+                case 'Tạm nghỉ':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'Đã nghỉ việc':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-green-100 text-green-800';
+            }
+        }
+
         // Pagination for Phù Hiệu
         function updatePaginationPH() {
             const totalPages = Math.ceil(filteredDataPH.length / itemsPerPagePH);
@@ -1956,6 +2827,25 @@
 
             document.getElementById('prevPageMobileGPLX').disabled = currentPageGPLX === 1;
             document.getElementById('nextPageMobileGPLX').disabled = currentPageGPLX === totalPages;
+        }
+
+        // Pagination for Nhân Sự
+        function updatePaginationNS() {
+            const totalPages = Math.ceil(filteredDataNS.length / itemsPerPageNS);
+            const startItem = (currentPageNS - 1) * itemsPerPageNS + 1;
+            const endItem = Math.min(currentPageNS * itemsPerPageNS, filteredDataNS.length);
+
+            document.getElementById('fromItemNS').textContent = filteredDataNS.length > 0 ? startItem : 0;
+            document.getElementById('toItemNS').textContent = endItem;
+            document.getElementById('totalItemsNS').textContent = filteredDataNS.length;
+
+            generatePagination('paginationNS', currentPageNS, totalPages, (page) => {
+                currentPageNS = page;
+                renderTableNS();
+            });
+
+            document.getElementById('prevPageMobileNS').disabled = currentPageNS === 1;
+            document.getElementById('nextPageMobileNS').disabled = currentPageNS === totalPages;
         }
 
         // Generate pagination buttons
@@ -2016,23 +2906,25 @@
             const errorDiv = document.getElementById(`error${type}`);
             errorDiv.classList.remove('hidden');
             errorDiv.innerHTML = `
-                <div class="text-center py-8">
-                    <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
-                    <p class="mt-2 text-gray-600">Không thể kết nối đến API hoặc không có dữ liệu.</p>
-                    <p class="text-sm text-gray-500 mt-1">Vui lòng kiểm tra kết nối mạng và thử lại.</p>
-                    <button onclick="${type === 'PH' ? 'loadDataPH()' : 'loadDataGPLX()'}" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                        Thử lại
-                    </button>
-                </div>
-            `;
+            <div class="text-center py-8">
+                <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                <p class="mt-2 text-gray-600">Không thể kết nối đến API hoặc không có dữ liệu.</p>
+                <p class="text-sm text-gray-500 mt-1">Vui lòng kiểm tra kết nối mạng và thử lại.</p>
+                <button onclick="${type === 'PH' ? 'loadDataPH()' : type === 'GPLX' ? 'loadDataGPLX()' : 'loadDataNS()'}" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Thử lại
+                </button>
+            </div>
+        `;
         }
 
         // Export to Excel
         function exportToExcel() {
             if (currentTab === 'phuHieu') {
                 exportPhuHieuToExcel();
-            } else {
+            } else if (currentTab === 'gplx') {
                 exportGPLXToExcel();
+            } else if (currentTab === 'nhanSu') {
+                exportNhanSuToExcel();
             }
         }
 
@@ -2110,6 +3002,49 @@
             XLSX.writeFile(wb, fileName);
         }
 
+        function exportNhanSuToExcel() {
+            const exportData = filteredDataNS.map((item, index) => ({
+                'STT': index + 1,
+                'Mã NV': item.IDNS || '',
+                'Họ tên': item.Hoten || '',
+                'Ngày sinh': item.Ngaysinh || '',
+                'Giới tính': item.Gioitinh || '',
+                'CCCD': item.NoCCCD || '',
+                'Chức vụ': item.Chucvu || '',
+                'Trình độ': item.Trinhdo || '',
+                'Số điện thoại': item.Sodienthoai || '',
+                'Email': item.Email || '',
+                'Địa chỉ': item.Diachidaydu || '',
+                'Tỉnh/TP': item.Tinhmoi || '',
+                'Trạng thái': item.Trangthai || 'Đang làm việc',
+                'Ghi chú': item.Ghichu || ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Danh sách nhân sự');
+
+            // Add summary statistics
+            const summaryData = [
+                ['THỐNG KÊ TỔNG QUAN'],
+                ['Tổng số nhân sự:', filteredDataNS.length],
+                ['Đang làm việc:', filteredDataNS.filter(item => item.Trangthai === 'Đang làm việc' || !item.Trangthai).length],
+                ['Tạm nghỉ:', filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length],
+                ['Đã nghỉ việc:', filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length],
+                ['Nam:', filteredDataNS.filter(item => item.Gioitinh === 'Nam').length],
+                ['Nữ:', filteredDataNS.filter(item => item.Gioitinh === 'Nữ').length],
+                [''],
+                ['Ngày xuất báo cáo:', new Date().toLocaleDateString('vi-VN')],
+                ['']
+            ];
+
+            const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
+
+            const fileName = `Bao-cao-nhan-su-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize with Phù Hiệu tab
@@ -2119,8 +3054,10 @@
             document.getElementById('refreshBtn').addEventListener('click', function () {
                 if (currentTab === 'phuHieu') {
                     loadDataPH();
-                } else {
+                } else if (currentTab === 'gplx') {
                     loadDataGPLX();
+                } else if (currentTab === 'nhanSu') {
+                    loadDataNS();
                 }
             });
             document.getElementById('exportBtn').addEventListener('click', exportToExcel);
@@ -2151,7 +3088,20 @@
                 renderTableGPLX();
             });
 
-            // Mobile pagination events
+            // Nhân Sự events
+            document.getElementById('applyFilterNS').addEventListener('click', applyFiltersNS);
+            document.getElementById('clearFilterNS').addEventListener('click', clearFiltersNS);
+            document.getElementById('searchBtnNS').addEventListener('click', applyFiltersNS);
+            document.getElementById('searchInputNS').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') applyFiltersNS();
+            });
+            document.getElementById('itemsPerPageNS').addEventListener('change', function () {
+                itemsPerPageNS = parseInt(this.value);
+                currentPageNS = 1;
+                renderTableNS();
+            });
+
+            // Mobile pagination events for PH
             document.getElementById('prevPageMobilePH').addEventListener('click', () => {
                 if (currentPagePH > 1) {
                     currentPagePH--;
@@ -2165,6 +3115,8 @@
                     renderTablePH();
                 }
             });
+
+            // Mobile pagination events for GPLX
             document.getElementById('prevPageMobileGPLX').addEventListener('click', () => {
                 if (currentPageGPLX > 1) {
                     currentPageGPLX--;
@@ -2179,12 +3131,29 @@
                 }
             });
 
+            // Mobile pagination events for NS
+            document.getElementById('prevPageMobileNS').addEventListener('click', () => {
+                if (currentPageNS > 1) {
+                    currentPageNS--;
+                    renderTableNS();
+                }
+            });
+            document.getElementById('nextPageMobileNS').addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredDataNS.length / itemsPerPageNS);
+                if (currentPageNS < totalPages) {
+                    currentPageNS++;
+                    renderTableNS();
+                }
+            });
+
             // Auto refresh every 5 minutes
             setInterval(() => {
                 if (currentTab === 'phuHieu' && allDataPH.length > 0) {
                     loadDataPH();
                 } else if (currentTab === 'gplx' && allDataGPLX.length > 0) {
                     loadDataGPLX();
+                } else if (currentTab === 'nhanSu' && allDataNS.length > 0) {
+                    loadDataNS();
                 }
             }, 5 * 60 * 1000);
         });
