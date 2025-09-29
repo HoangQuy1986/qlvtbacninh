@@ -341,12 +341,12 @@
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center">
-                        <div class="p-2 bg-purple-100 rounded-full">
-                            <i class="fas fa-pause-circle text-purple-600"></i>
+                        <div class="p-2 bg-gray-100 rounded-full">
+                            <i class="fas fa-question-circle text-gray-600"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-600">Tạm dừng</p>
-                            <p class="text-xl font-semibold text-purple-600" id="suspendedCountGPLX">0</p>
+                            <p class="text-sm text-gray-600">Chưa xác định</p>
+                            <p class="text-xl font-semibold text-gray-600" id="suspendedCountGPLX">0</p>
                         </div>
                     </div>
                 </div>
@@ -365,14 +365,6 @@
                     <div class="h-64">
                         <canvas id="hangChartGPLX"></canvas>
                     </div>
-                </div>
-            </div>
-
-            <!-- Trend Chart GPLX -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Xu hướng cấp GPLX theo tháng</h3>
-                <div class="h-64">
-                    <canvas id="trendChartGPLX"></canvas>
                 </div>
             </div>
 
@@ -564,23 +556,12 @@
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center">
-                        <div class="p-2 bg-yellow-100 rounded-full">
-                            <i class="fas fa-pause-circle text-yellow-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-gray-600">Tạm nghỉ</p>
-                            <p class="text-xl font-semibold text-yellow-600" id="pausedCountNS">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
                         <div class="p-2 bg-red-100 rounded-full">
                             <i class="fas fa-user-times text-red-600"></i>
                         </div>
                         <div class="ml-3">
                             <p class="text-sm text-gray-600">Đã nghỉ việc</p>
-                            <p class="text-xl font-semibold text-red-600" id="inactiveCountNS">0</p>
+                            <p class="text-xl font-semibold text-red-600" id="pausedCountNS">0</p>
                         </div>
                     </div>
                 </div>
@@ -592,6 +573,17 @@
                         <div class="ml-3">
                             <p class="text-sm text-gray-600">Nam</p>
                             <p class="text-xl font-semibold text-purple-600" id="maleCountNS">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-pink-100 rounded-full">
+                            <i class="fas fa-user text-pink-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-600">Nữ</p>
+                            <p class="text-xl font-semibold text-pink-600" id="inactiveCountNS">0</p>
                         </div>
                     </div>
                 </div>
@@ -815,7 +807,7 @@
         let sortDirectionNS = 'asc';
 
         // Charts
-        let statusChartPH, typeChartPH, trendChartPH, statusChartGPLX, hangChartGPLX, trendChartGPLX;
+        let statusChartPH, typeChartPH, trendChartPH, statusChartGPLX, hangChartGPLX;
         let statusChartNS, chucVuChartNS, genderChartNS, educationChartNS;
 
         // Tab switching
@@ -1056,14 +1048,26 @@
 
         // Process GPLX data
         function processDataGPLX() {
+            const today = new Date();
+
             allDataGPLX.forEach(item => {
-                if (item.Ngayhethan && (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai)) {
+                // Xác định trạng thái dựa trên ngày hết hạn
+                if (!item.Ngayhethan) {
+                    item.Trangthai = 'Chưa xác định';
+                    item.isExpiring = false;
+                } else {
                     const expireDate = new Date(item.Ngayhethan);
-                    const today = new Date();
                     const daysToExpire = Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24));
 
-                    if (daysToExpire <= 30 && daysToExpire > 0) {
+                    if (daysToExpire < 0) {
+                        item.Trangthai = 'Hết hạn';
+                        item.isExpiring = false;
+                    } else if (daysToExpire <= 30) {
+                        item.Trangthai = 'Sắp hết hạn';
                         item.isExpiring = true;
+                    } else {
+                        item.Trangthai = 'Còn hiệu lực';
+                        item.isExpiring = false;
                     }
                 }
             });
@@ -1087,17 +1091,16 @@
         // Update GPLX statistics
         function updateStatsGPLX() {
             const total = filteredDataGPLX.length;
-            const active = filteredDataGPLX.filter(item =>
-                (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length;
-            const expired = filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length;
-            const suspended = filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length;
-            const expiring = filteredDataGPLX.filter(item => item.isExpiring).length;
+            const chuaXacDinh = filteredDataGPLX.filter(item => item.Trangthai === 'Chưa xác định').length;
+            const active = filteredDataGPLX.filter(item => item.Trangthai === 'Còn hiệu lực').length;
+            const expiring = filteredDataGPLX.filter(item => item.Trangthai === 'Sắp hết hạn').length;
+            const expired = filteredDataGPLX.filter(item => item.Trangthai === 'Hết hạn').length;
 
             document.getElementById('totalCountGPLX').textContent = total;
             document.getElementById('activeCountGPLX').textContent = active;
-            document.getElementById('expiredCountGPLX').textContent = expired;
-            document.getElementById('suspendedCountGPLX').textContent = suspended;
             document.getElementById('expiringCountGPLX').textContent = expiring;
+            document.getElementById('expiredCountGPLX').textContent = expired;
+            document.getElementById('suspendedCountGPLX').textContent = chuaXacDinh;
         }
 
         // Update Nhân Sự statistics
@@ -1105,15 +1108,16 @@
             const total = filteredDataNS.length;
             const active = filteredDataNS.filter(item =>
                 item.Trangthai === 'Đang làm việc' || !item.Trangthai).length;
-            const paused = filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length;
-            const inactive = filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length;
+            const inactive = filteredDataNS.filter(item =>
+                item.Trangthai === 'Đã nghỉ việc').length;
             const male = filteredDataNS.filter(item => item.Gioitinh === 'Nam').length;
+            const female = filteredDataNS.filter(item => item.Gioitinh === 'Nữ').length;
 
             document.getElementById('totalCountNS').textContent = total;
             document.getElementById('activeCountNS').textContent = active;
-            document.getElementById('pausedCountNS').textContent = paused;
-            document.getElementById('inactiveCountNS').textContent = inactive;
+            document.getElementById('pausedCountNS').textContent = inactive; // Đổi sang đã nghỉ việc
             document.getElementById('maleCountNS').textContent = male;
+            document.getElementById('inactiveCountNS').textContent = female; // Đổi sang nữ
         }
 
         // Update charts for Phù Hiệu
@@ -1127,7 +1131,6 @@
         function updateChartsGPLX() {
             updateStatusChartGPLX();
             updateHangChartGPLX();
-            updateTrendChartGPLX();
         }
 
         // Update charts for Nhân Sự
@@ -1226,6 +1229,7 @@
         }
 
         // Connector lines function for doughnut charts
+        // Connector lines function for doughnut charts - Smart positioning
         function drawConnectorLinesImproved(chart) {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
@@ -1234,14 +1238,19 @@
             const centerY = chart.height / 2;
 
             const labelPositions = [];
+            const dataCount = meta.data.length;
 
+            // Bước 1: Tính toán vị trí ban đầu dựa trên góc của mỗi phần
             meta.data.forEach((element, index) => {
                 const model = element;
                 const startAngle = model.startAngle;
                 const endAngle = model.endAngle;
                 const midAngle = (startAngle + endAngle) / 2;
 
-                const labelRadius = model.outerRadius + 60;
+                // Khoảng cách từ tâm đến label
+                const labelRadius = model.outerRadius + 50;
+
+                // Vị trí ban đầu theo góc tự nhiên
                 const labelX = centerX + Math.cos(midAngle) * labelRadius;
                 const labelY = centerY + Math.sin(midAngle) * labelRadius;
 
@@ -1250,74 +1259,93 @@
                     midAngle,
                     labelX,
                     labelY,
-                    index
+                    index,
+                    originalX: labelX,
+                    originalY: labelY
                 });
             });
 
-            // Adjust label positions to avoid overlap
-            labelPositions.forEach((pos, i) => {
-                for (let j = i + 1; j < labelPositions.length; j++) {
-                    const other = labelPositions[j];
-                    const distance = Math.sqrt(
-                        Math.pow(pos.labelX - other.labelX, 2) +
-                        Math.pow(pos.labelY - other.labelY, 2)
-                    );
+            // Bước 2: Điều chỉnh vị trí để tránh chồng lấn
+            const minDistance = 80; // Khoảng cách tối thiểu giữa các label
+            const maxIterations = 10; // Số lần lặp tối đa để điều chỉnh
 
-                    if (distance < 80) {
-                        const angle = Math.atan2(other.labelY - pos.labelY, other.labelX - pos.labelX);
-                        other.labelX = pos.labelX + Math.cos(angle) * 80;
-                        other.labelY = pos.labelY + Math.sin(angle) * 80;
+            for (let iter = 0; iter < maxIterations; iter++) {
+                let hasOverlap = false;
+
+                for (let i = 0; i < labelPositions.length; i++) {
+                    for (let j = i + 1; j < labelPositions.length; j++) {
+                        const pos1 = labelPositions[i];
+                        const pos2 = labelPositions[j];
+
+                        const dx = pos2.labelX - pos1.labelX;
+                        const dy = pos2.labelY - pos1.labelY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < minDistance) {
+                            hasOverlap = true;
+
+                            // Tính toán lực đẩy
+                            const overlap = minDistance - distance;
+                            const angle = Math.atan2(dy, dx);
+
+                            // Đẩy cả hai label ra xa nhau
+                            const pushForce = overlap / 2;
+
+                            pos1.labelX -= Math.cos(angle) * pushForce;
+                            pos1.labelY -= Math.sin(angle) * pushForce;
+
+                            pos2.labelX += Math.cos(angle) * pushForce;
+                            pos2.labelY += Math.sin(angle) * pushForce;
+                        }
                     }
                 }
-            });
 
-            // Draw connector lines and labels
+                if (!hasOverlap) break;
+            }
+
+            // Bước 3: Vẽ đường nối và label
             labelPositions.forEach(pos => {
                 const { element, midAngle, labelX, labelY, index } = pos;
 
                 const startX = centerX + Math.cos(midAngle) * element.outerRadius;
                 const startY = centerY + Math.sin(midAngle) * element.outerRadius;
-                const midX = centerX + Math.cos(midAngle) * (element.outerRadius + 40);
-                const midY = centerY + Math.sin(midAngle) * (element.outerRadius + 20);
-                const endX = midX + (Math.cos(midAngle) > 0 ? 30 : -30);
-                const endY = midY;
 
-                // Draw connector line
+                // Vẽ đường nối
                 ctx.strokeStyle = dataset.backgroundColor[index];
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.moveTo(startX, startY);
-                ctx.lineTo(midX, midY);
-                ctx.lineTo(endX, endY);
+                ctx.lineTo(labelX, labelY);
                 ctx.stroke();
 
-                // Draw end point
-                ctx.fillStyle = dataset.backgroundColor[index];
-                ctx.beginPath();
-                ctx.arc(endX, endY, 3, 0, 2 * Math.PI);
-                ctx.fill();
-
-                // Draw label
+                // Vẽ label
                 const label = chart.data.labels[index];
                 const value = dataset.data[index];
                 const total = dataset.data.reduce((a, b) => a + b, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
 
-                ctx.fillStyle = '#374151';
-                ctx.font = 'bold 13px Arial';
-                ctx.textAlign = Math.cos(midAngle) > 0 ? 'left' : 'right';
+                // Xác định căn chỉnh text dựa trên vị trí
+                const isLeft = labelX < centerX - 20;
+                const isRight = labelX > centerX + 20;
+                const isCenter = !isLeft && !isRight;
+
+                ctx.textAlign = isCenter ? 'center' : (isRight ? 'left' : 'right');
                 ctx.textBaseline = 'middle';
 
-                const textX = endX;
-                const textY = endY - 20;
+                // Offset cho text
+                let offsetX = 0;
+                if (isRight) offsetX = 8;
+                if (isLeft) offsetX = -8;
 
+                ctx.fillStyle = '#374151';
+                ctx.font = 'bold 14px Arial';
                 const mainText = `${label}: ${value}`;
-                ctx.fillText(mainText, textX, textY - 8);
+                ctx.fillText(mainText, labelX + offsetX, labelY - 10);
 
-                ctx.font = '11px Arial';
+                ctx.font = '12px Arial';
                 ctx.fillStyle = '#6b7280';
                 const subText = `(${percentage}%)`;
-                ctx.fillText(subText, textX, textY + 8);
+                ctx.fillText(subText, labelX + offsetX, labelY + 10);
             });
         }
 
@@ -1564,21 +1592,20 @@
             }
 
             const statusCounts = {
-                'Còn hiệu lực': filteredDataGPLX.filter(item =>
-                    (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length,
-                'Sắp hết hạn': filteredDataGPLX.filter(item => item.isExpiring).length,
-                'Hết hiệu lực': filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length,
-                'Tạm dừng': filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length
+                'Chưa xác định': filteredDataGPLX.filter(item => item.Trangthai === 'Chưa xác định').length,
+                'Còn hiệu lực': filteredDataGPLX.filter(item => item.Trangthai === 'Còn hiệu lực').length,
+                'Sắp hết hạn': filteredDataGPLX.filter(item => item.Trangthai === 'Sắp hết hạn').length,
+                'Hết hạn': filteredDataGPLX.filter(item => item.Trangthai === 'Hết hạn').length
             };
 
             const filteredStatusCounts = {};
             const filteredLabels = [];
             const filteredColors = [];
             const colorMap = {
+                'Chưa xác định': '#9ca3af',
                 'Còn hiệu lực': '#10b981',
                 'Sắp hết hạn': '#f59e0b',
-                'Hết hiệu lực': '#ef4444',
-                'Tạm dừng': '#8b5cf6'
+                'Hết hạn': '#ef4444'
             };
 
             Object.keys(statusCounts).forEach(key => {
@@ -1652,13 +1679,20 @@
             }
 
             const hangCounts = {};
+            // Tách các hạng và đếm riêng lẻ
             filteredDataGPLX.forEach(item => {
-                const hang = item.Hang || 'Không xác định';
-                hangCounts[hang] = (hangCounts[hang] || 0) + 1;
+                if (item.Hang) {
+                    const hangs = item.Hang.split(',').map(h => h.trim());
+                    hangs.forEach(hang => {
+                        hangCounts[hang] = (hangCounts[hang] || 0) + 1;
+                    });
+                } else {
+                    hangCounts['Không xác định'] = (hangCounts['Không xác định'] || 0) + 1;
+                }
             });
 
-            const labels = Object.keys(hangCounts);
-            const data = Object.values(hangCounts);
+            const labels = Object.keys(hangCounts).sort();
+            const data = labels.map(label => hangCounts[label]);
 
             hangChartGPLX = new Chart(ctx, {
                 type: 'bar',
@@ -1741,142 +1775,6 @@
             });
         }
 
-        // Trend chart for GPLX
-        function updateTrendChartGPLX() {
-            const ctx = document.getElementById('trendChartGPLX').getContext('2d');
-
-            if (trendChartGPLX) {
-                trendChartGPLX.destroy();
-            }
-
-            const monthCounts = {};
-            filteredDataGPLX.forEach(item => {
-                if (item.Ngaycap) {
-                    const date = new Date(item.Ngaycap);
-                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                    monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
-                }
-            });
-
-            const sortedMonths = Object.keys(monthCounts).sort();
-            const labels = sortedMonths.map(month => {
-                const [year, monthNum] = month.split('-');
-                return `${monthNum}/${year}`;
-            });
-            const data = sortedMonths.map(month => monthCounts[month]);
-
-            trendChartGPLX = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Số GPLX cấp mới',
-                        data: data,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#10b981',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            top: 30
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                font: {
-                                    size: 14
-                                },
-                                padding: 20
-                            }
-                        },
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            grid: {
-                                color: '#e5e7eb'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Số lượng GPLX',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 12
-                                }
-                            },
-                            grid: {
-                                color: '#e5e7eb'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Thời gian',
-                                font: {
-                                    size: 14,
-                                    weight: 'bold'
-                                }
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeOutQuart'
-                    }
-                },
-                plugins: [{
-                    afterDatasetsDraw: function (chart) {
-                        const ctx = chart.ctx;
-                        chart.data.datasets.forEach((dataset, i) => {
-                            const meta = chart.getDatasetMeta(i);
-                            meta.data.forEach((element, index) => {
-                                const data = dataset.data[index];
-                                if (data > 0) {
-                                    const x = element.x;
-                                    const y = element.y - 15;
-
-                                    ctx.fillStyle = '#047857';
-                                    ctx.font = 'bold 14px Arial';
-                                    ctx.textAlign = 'center';
-                                    ctx.textBaseline = 'bottom';
-                                    ctx.fillText(data, x, y);
-                                }
-                            });
-                        });
-                    }
-                }]
-            });
-        }
-
         // Status chart for Nhân Sự
         function updateStatusChartNS() {
             const ctx = document.getElementById('statusChartNS').getContext('2d');
@@ -1886,9 +1784,10 @@
             }
 
             const statusCounts = {
-                'Đang làm việc': filteredDataNS.filter(item => item.Trangthai === 'Đang làm việc' || !item.Trangthai).length,
-                'Tạm nghỉ': filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length,
-                'Đã nghỉ việc': filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length
+                'Đang làm việc': filteredDataNS.filter(item =>
+                    item.Trangthai === 'Đang làm việc' || !item.Trangthai).length,
+                'Đã nghỉ việc': filteredDataNS.filter(item =>
+                    item.Trangthai === 'Đã nghỉ việc').length
             };
 
             const filteredStatusCounts = {};
@@ -1896,7 +1795,6 @@
             const filteredColors = [];
             const colorMap = {
                 'Đang làm việc': '#10b981',
-                'Tạm nghỉ': '#f59e0b',
                 'Đã nghỉ việc': '#ef4444'
             };
 
@@ -2238,9 +2136,20 @@
             const coQuanCapFilter = document.getElementById('coQuanCapFilterGPLX');
             const statusFilter = document.getElementById('statusFilterGPLX');
 
-            const hangs = [...new Set(allDataGPLX.map(item => item.Hang))].filter(Boolean);
+            // Tách và lấy tất cả các hạng riêng lẻ
+            const hangsSet = new Set();
+            allDataGPLX.forEach(item => {
+                if (item.Hang) {
+                    const hangs = item.Hang.split(',').map(h => h.trim());
+                    hangs.forEach(h => hangsSet.add(h));
+                }
+            });
+            const hangs = Array.from(hangsSet).sort();
+
             const coQuanCaps = [...new Set(allDataGPLX.map(item => item.Coquancap))].filter(Boolean);
-            const statuses = [...new Set(allDataGPLX.map(item => item.Trangthai))].filter(Boolean);
+
+            // Các trạng thái cố định
+            const statuses = ['Chưa xác định', 'Còn hiệu lực', 'Sắp hết hạn', 'Hết hạn'];
 
             hangFilter.innerHTML = '<option value="">Tất cả</option>';
             hangs.forEach(hang => {
@@ -2293,12 +2202,10 @@
                 trinhDoFilter.innerHTML += `<option value="${td}">${td}</option>`;
             });
 
-            // Trạng thái
-            const statuses = [...new Set(allDataNS.map(item => item.Trangthai))].filter(Boolean);
+            // Trạng thái - chỉ có 2 trạng thái cố định
             statusFilter.innerHTML = '<option value="">Tất cả</option>';
-            statuses.forEach(status => {
-                statusFilter.innerHTML += `<option value="${status}">${status}</option>`;
-            });
+            statusFilter.innerHTML += '<option value="Đang làm việc">Đang làm việc</option>';
+            statusFilter.innerHTML += '<option value="Đã nghỉ việc">Đã nghỉ việc</option>';
 
             // Tỉnh/Thành phố
             const tinhs = [...new Set(allDataNS.map(item => item.Tinhmoi))].filter(Boolean);
@@ -2369,7 +2276,13 @@
             filteredDataGPLX = allDataGPLX.filter(item => {
                 let match = true;
 
-                if (hangFilter && item.Hang !== hangFilter) {
+                // Kiểm tra hạng - tách và so sánh
+                if (hangFilter && item.Hang) {
+                    const hangs = item.Hang.split(',').map(h => h.trim());
+                    if (!hangs.includes(hangFilter)) {
+                        match = false;
+                    }
+                } else if (hangFilter) {
                     match = false;
                 }
 
@@ -2665,23 +2578,34 @@
             tbody.innerHTML = '';
 
             pageData.forEach((item, index) => {
+                // Xử lý hạng GPLX - tách thành các badge riêng
+                let hangDisplay = '';
+                if (item.Hang) {
+                    const hangs = item.Hang.split(',').map(h => h.trim());
+                    hangDisplay = hangs.map(h =>
+                        `<span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 mr-1 mb-1">${h}</span>`
+                    ).join('');
+                }
+
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50';
                 row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.soGPLX || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hang || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Coquancap || ''}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassGPLX(item)}">
-                        ${getStatusTextGPLX(item)}
-                    </span>
-                </td>
-            `;
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${startIndex + index + 1}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.soGPLX || ''}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Hoten || ''}</td>
+            <td class="px-6 py-4 text-sm text-gray-500">
+                <div class="flex flex-wrap">${hangDisplay}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaysinh)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngaycap)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(item.Ngayhethan)}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.Coquancap || ''}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClassGPLX(item)}">
+                    ${getStatusTextGPLX(item)}
+                </span>
+            </td>
+        `;
                 tbody.appendChild(row);
             });
 
@@ -2756,38 +2680,32 @@
         }
 
         function getStatusClassGPLX(item) {
-            if (item.isExpiring) {
-                return 'bg-yellow-100 text-yellow-800';
-            }
             switch (item.Trangthai) {
+                case 'Chưa xác định':
+                    return 'bg-gray-100 text-gray-800';
                 case 'Còn hiệu lực':
                     return 'bg-green-100 text-green-800';
-                case 'Hết hiệu lực':
+                case 'Sắp hết hạn':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'Hết hạn':
                     return 'bg-red-100 text-red-800';
-                case 'Tạm dừng':
-                    return 'bg-purple-100 text-purple-800';
                 default:
-                    return 'bg-green-100 text-green-800';
+                    return 'bg-gray-100 text-gray-800';
             }
         }
 
         function getStatusTextGPLX(item) {
-            if (item.isExpiring && (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai)) {
-                return 'Sắp hết hạn';
-            }
-            return item.Trangthai || 'Còn hiệu lực';
+            return item.Trangthai || 'Chưa xác định';
         }
 
         function getStatusClassNS(item) {
             switch (item.Trangthai) {
                 case 'Đang làm việc':
                     return 'bg-green-100 text-green-800';
-                case 'Tạm nghỉ':
-                    return 'bg-yellow-100 text-yellow-800';
                 case 'Đã nghỉ việc':
                     return 'bg-red-100 text-red-800';
                 default:
-                    return 'bg-green-100 text-green-800';
+                    return 'bg-green-100 text-green-800'; // Mặc định là đang làm việc
             }
         }
 
@@ -2975,7 +2893,7 @@
                 'Ngày cấp': item.Ngaycap || '',
                 'Ngày hết hạn': item.Ngayhethan || '',
                 'Cơ quan cấp': item.Coquancap || '',
-                'Trạng thái': getStatusTextGPLX(item)
+                'Trạng thái': item.Trangthai || 'Chưa xác định'
             }));
 
             const ws = XLSX.utils.json_to_sheet(exportData);
@@ -2986,10 +2904,10 @@
             const summaryData = [
                 ['THỐNG KÊ TỔNG QUAN'],
                 ['Tổng số GPLX:', filteredDataGPLX.length],
-                ['Còn hiệu lực:', filteredDataGPLX.filter(item => (item.Trangthai === 'Còn hiệu lực' || !item.Trangthai) && !item.isExpiring).length],
-                ['Sắp hết hạn:', filteredDataGPLX.filter(item => item.isExpiring).length],
-                ['Hết hiệu lực:', filteredDataGPLX.filter(item => item.Trangthai === 'Hết hiệu lực').length],
-                ['Tạm dừng:', filteredDataGPLX.filter(item => item.Trangthai === 'Tạm dừng').length],
+                ['Chưa xác định:', filteredDataGPLX.filter(item => item.Trangthai === 'Chưa xác định').length],
+                ['Còn hiệu lực:', filteredDataGPLX.filter(item => item.Trangthai === 'Còn hiệu lực').length],
+                ['Sắp hết hạn:', filteredDataGPLX.filter(item => item.Trangthai === 'Sắp hết hạn').length],
+                ['Hết hạn:', filteredDataGPLX.filter(item => item.Trangthai === 'Hết hạn').length],
                 [''],
                 ['Ngày xuất báo cáo:', new Date().toLocaleDateString('vi-VN')],
                 ['']
@@ -3028,9 +2946,10 @@
             const summaryData = [
                 ['THỐNG KÊ TỔNG QUAN'],
                 ['Tổng số nhân sự:', filteredDataNS.length],
-                ['Đang làm việc:', filteredDataNS.filter(item => item.Trangthai === 'Đang làm việc' || !item.Trangthai).length],
-                ['Tạm nghỉ:', filteredDataNS.filter(item => item.Trangthai === 'Tạm nghỉ').length],
-                ['Đã nghỉ việc:', filteredDataNS.filter(item => item.Trangthai === 'Đã nghỉ việc').length],
+                ['Đang làm việc:', filteredDataNS.filter(item =>
+                    item.Trangthai === 'Đang làm việc' || !item.Trangthai).length],
+                ['Đã nghỉ việc:', filteredDataNS.filter(item =>
+                    item.Trangthai === 'Đã nghỉ việc').length],
                 ['Nam:', filteredDataNS.filter(item => item.Gioitinh === 'Nam').length],
                 ['Nữ:', filteredDataNS.filter(item => item.Gioitinh === 'Nữ').length],
                 [''],
