@@ -231,7 +231,7 @@
     <div class="document-header">
         <div class="header-left">
             <div class="header-org"><span id="don-vi-to-chuc">.....................</span></div>
-            <div class="header-number"><span id="so-gcn">............</span></div>
+            <div class="header-number"><span>Số GCN: </span><span id="so-gcn">............</span></div>
         </div>
         <div class="header-right">
             <div class="header-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
@@ -472,7 +472,8 @@
                     // Từ bảng DAOTAO_TAPHUAN_LX
                     ID_DT: daotaoData.ID_DT || '',
                     SoGCN: daotaoData.SoGCN || '',
-                    DonViToChuc: daotaoData.DonViToChuc || donviData.Tendonvi || '',
+                    DonViToChuc: daotaoData.DonViToChuc || '',
+                    DonViToChuc_UPER: daotaoData.DonViToChuc.toUpperCase() || '',
 
                     // Từ bảng THONGTINNHANSU (qua Ref_LaiXe)
                     Hoten: nhansuData.Hoten || '',
@@ -517,7 +518,7 @@
                 }
             };
 
-            setText('don-vi-to-chuc', data.DonViToChuc);
+            setText('don-vi-to-chuc', data.DonViToChuc_UPER);
             setText('so-gcn', data.SoGCN);
             setText('ho-ten', data.Hoten);
             setText('ngay-sinh', data.Ngaysinh);
