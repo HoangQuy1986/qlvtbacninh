@@ -2005,7 +2005,7 @@
                 ctx.fillText(`(${percentage}%)`, textX, labelY + 5);
             });
         }
-        
+
         function drawBarLabels(chart, horizontal) {
             const ctx = chart.ctx;
             chart.data.datasets.forEach((dataset, i) => {
@@ -2080,14 +2080,55 @@
                         borderColor: '#8b5cf6',
                         backgroundColor: 'rgba(139, 92, 246, 0.1)',
                         fill: true,
-                        tension: 0.3
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { tooltip: { enabled: false } }
-                }
+                    layout: {
+                        padding: {
+                            top: 30,
+                            right: 20,
+                            bottom: 10,
+                            left: 10
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                },
+                plugins: [{
+                    afterDatasetsDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((element, index) => {
+                                const data = dataset.data[index];
+                                ctx.fillStyle = '#8b5cf6';
+                                ctx.font = 'bold 14px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, element.x, element.y - 8);
+                            });
+                        });
+                    }
+                }]
             });
         }
 
