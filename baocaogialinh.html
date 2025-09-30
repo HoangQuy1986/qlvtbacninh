@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTX VTTM Nội Thành</title>
+    <title>HTX VẬN TẢI GIA LINH</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -44,7 +44,7 @@
                         <i class="fas fa-bus text-blue-600 text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-white">HTX VTTM Nội Thành</h1>
+                        <h1 class="text-2xl font-bold text-white">HTX VẬN TẢI GIA LINH</h1>
                     </div>
                 </div>
                 <div class="flex space-x-3">
@@ -1963,7 +1963,6 @@
                 const startX = centerX + Math.cos(midAngle) * element.outerRadius;
                 const startY = centerY + Math.sin(midAngle) * element.outerRadius;
 
-                // Vẽ đường nối
                 ctx.strokeStyle = chart.data.datasets[0].backgroundColor[index];
                 ctx.lineWidth = 2;
                 ctx.beginPath();
@@ -1976,36 +1975,17 @@
                 const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                 const percentage = ((value / total) * 100).toFixed(1);
 
-                const offsetX = labelX > centerX ? 8 : labelX < centerX ? -8 : 0;
-                const textX = labelX + offsetX;
-
-                ctx.textAlign = labelX > centerX + 8 ? 'left' : labelX < centerX - 38 ? 'right' : 'center';
+                ctx.textAlign = labelX > centerX + 20 ? 'left' : labelX < centerX - 20 ? 'right' : 'center';
                 ctx.textBaseline = 'middle';
-
-                // Vẽ nền trắng cho text chính
-                ctx.font = 'bold 14px Arial';
-                const textWidth = ctx.measureText(`${label}: ${value}`).width;
-                ctx.fillStyle = 'white';
-                ctx.fillRect(textX - (ctx.textAlign === 'center' ? textWidth / 2 : ctx.textAlign === 'right' ? textWidth : 0) - 2,
-                    labelY - 10 - 8, textWidth + 4, 16);
-
-                // Vẽ text chính
                 ctx.fillStyle = '#374151';
-                ctx.fillText(`${label}: ${value}`, textX, labelY - 8);
-
-                // Vẽ nền trắng cho phần trăm
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(`${label}: ${value}`, labelX + (labelX > centerX ? 8 : labelX < centerX ? -8 : 0), labelY - 10);
                 ctx.font = '12px Arial';
-                const percentWidth = ctx.measureText(`(${percentage}%)`).width;
-                ctx.fillStyle = 'white';
-                ctx.fillRect(textX - (ctx.textAlign === 'center' ? percentWidth / 2 : ctx.textAlign === 'right' ? percentWidth : 0) - 2,
-                    labelY + 5 - 7, percentWidth + 4, 14);
-
-                // Vẽ phần trăm
                 ctx.fillStyle = '#6b7280';
-                ctx.fillText(`(${percentage}%)`, textX, labelY + 5);
+                ctx.fillText(`(${percentage}%)`, labelX + (labelX > centerX ? 8 : labelX < centerX ? -8 : 0), labelY + 10);
             });
         }
-        
+
         function drawBarLabels(chart, horizontal) {
             const ctx = chart.ctx;
             chart.data.datasets.forEach((dataset, i) => {
