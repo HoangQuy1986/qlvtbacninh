@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giấy Chứng Nhận Tập Huấn Nghiệp Vụ</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 14px;
+            line-height: 1.6;
+            background: white;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            min-height: 297mm;
+            position: relative;
+        }
+
+        .button-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: "Times New Roman", serif;
+        }
+
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .print-button:hover {
+            background-color: #45a049;
+        }
+
+        .export-button {
+            background-color: #2b579a;
+            color: white;
+        }
+
+        .export-button:hover {
+            background-color: #1e3f6f;
+        }
+
+        #loading-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 2000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Document header */
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .header-left {
+            width: 40%;
+            text-align: center;
+        }
+
+        .header-right {
+            width: 50%;
+            text-align: center;
+        }
+
+        .header-org {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 10px;
+        }
+
+        .header-country {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-motto {
+            font-weight: bold;
+            font-style: italic;
+            text-decoration: underline;
+        }
+
+        /* Title */
+        .document-title {
+            text-align: center;
+            margin: 30px 0 40px 0;
+        }
+
+        .title-main {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .title-sub {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Content */
+        .content-section {
+            margin: 30px 0;
+            line-height: 1.8;
+        }
+
+        .content-item {
+            margin-bottom: 12px;
+        }
+
+        .date-line {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .title-line {
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        /* Bottom section */
+        .bottom-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .validity-note {
+            width: 40%;
+            text-align: left;
+        }
+
+        .signature-name {
+            width: 50%;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 20mm;
+            }
+
+            .button-container {
+                display: none;
+            }
+        }
+
+        @media screen {
+            body {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 20px auto;
+            }
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Button Container -->
+    <div class="button-container">
+        <button class="button print-button" onclick="window.print()">
+            <i class="fas fa-print"></i> In Tài Liệu
+        </button>
+        <button class="button export-button" onclick="exportToWordTemplate()">
+            <i class="fas fa-file-word"></i> Xuất Word
+        </button>
+    </div>
+
+    <!-- Loading Message -->
+    <div id="loading-message">Đang tải dữ liệu...</div>
+
+    <!-- Document Content -->
+    <div class="document-header">
+        <div class="header-left">
+            <div class="header-org"><span id="don-vi-to-chuc">.....................</span></div>
+            <div class="header-number"><span id="so-gcn">............</span></div>
+        </div>
+        <div class="header-right">
+            <div class="header-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+            <div class="header-motto">Độc lập - Tự do - Hạnh phúc</div>
+        </div>
+    </div>
+
+    <div class="document-title">
+        <div class="title-main">GIẤY CHỨNG NHẬN TẬP HUẤN NGHIỆP VỤ</div>
+        <div class="title-sub">DÀNH CHO LÁI XE KINH DOANH VẬN TẢI</div>
+    </div>
+
+    <div class="content-section">
+        <div class="content-item">Họ và tên: <span id="ho-ten" class="bold">................................</span>
+        </div>
+        <div class="content-item">Ngày sinh: <span id="ngay-sinh">................................</span></div>
+        <div class="content-item">Địa chỉ: <span id="dia-chi">................................</span></div>
+        <div class="content-item">Số CCCD: <span id="no-cccd">................................</span></div>
+        <div class="content-item">Đã quan lớp đào tạo tại: <span
+                id="don-vi-to-chuc-2">................................</span></div>
+        <div class="content-item">Thời gian: Từ ngày <span id="tu-ngay">.......</span> đến <span
+                id="den-ngay">.......</span></div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="validity-note">
+            <div>GCN có giá trị đến ngày:</div>
+            <div><span id="hieu-luc-gcn">................................</span></div>
+        </div>
+        <div class="signature-name">
+            <div class="date-line"><em><span id="tinh">............</span>, ngày <span id="ngay">.....</span> tháng
+                    <span id="thang">.....</span> năm <span id="nam">.....</span></em></div>
+            <div class="title-line">THỦ TRƯỞNG ĐƠN VỊ</div>
+            <span id="nguoi-dai-dien">................................</span>
+        </div>
+    </div>
+
+    <script>
+        // Constants for AppSheet connection
+        const appId = 'bff5145f-95c2-473b-9924-095b79f638df';
+        const accessKey = 'V2-oAhYx-hG2zM-GzAtd-DEhMA-tu6ee-KnVDP-k08fR-BcwCf';
+        const region = 'www';
+
+        // Biến toàn cục để lưu dữ liệu
+        let globalCertificateData = null;
+
+        // Function to get ID from URL
+        function getIDFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id') || urlParams.get('ID_DT');
+        }
+
+        // Function to fetch data from AppSheet
+        async function fetchAppSheetData(tableName, filter = null) {
+            try {
+                const selector = filter || `Filter(${tableName}, true)`;
+                console.log(`🔍 Executing selector for ${tableName}:`, selector);
+
+                const body = {
+                    Action: 'Find',
+                    Properties: {},
+                    Selector: selector
+                };
+
+                const response = await fetch(`https://${region}.appsheet.com/api/v2/apps/${appId}/tables/${tableName}/Action`, {
+                    method: 'POST',
+                    headers: {
+                        'ApplicationAccessKey': accessKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(`✅ Response for ${tableName}:`, data);
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error(`❌ Failed to fetch ${tableName}:`, error);
+                throw error;
+            }
+        }
+
+        // Get date components with custom month format
+        function getDateComponents(dateString) {
+            if (!dateString) {
+                const today = new Date();
+                return {
+                    day: today.getDate().toString().padStart(2, '0'),
+                    month: today.getMonth() + 1, // Không format, để số nguyên
+                    year: today.getFullYear()
+                };
+            }
+
+            let targetDate;
+            if (typeof dateString === 'string' && dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const month = parseInt(parts[0]);
+                    const day = parseInt(parts[1]);
+                    const year = parseInt(parts[2]);
+                    targetDate = new Date(year, month - 1, day);
+                }
+            } else {
+                targetDate = new Date(dateString);
+            }
+
+            if (!targetDate || isNaN(targetDate.getTime())) {
+                targetDate = new Date();
+            }
+
+            const monthNum = targetDate.getMonth() + 1;
+
+            return {
+                day: targetDate.getDate().toString().padStart(2, '0'), // Luôn 2 chữ số
+                month: monthNum, // Số nguyên không format
+                year: targetDate.getFullYear()
+            };
+        }
+
+        // Format date with custom rules: dd/mm/yyyy hoặc dd/m/yyyy
+        function formatDateShort(dateString) {
+            if (!dateString || dateString === '') {
+                return '';
+            }
+
+            let date;
+            if (typeof dateString === 'string') {
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        const month = parseInt(parts[0]);
+                        const day = parseInt(parts[1]);
+                        const year = parseInt(parts[2]);
+                        date = new Date(year, month - 1, day);
+                    }
+                } else if (dateString.includes('-')) {
+                    date = new Date(dateString);
+                } else {
+                    date = new Date(dateString);
+                }
+            } else if (dateString instanceof Date) {
+                date = dateString;
+            } else {
+                return dateString.toString();
+            }
+
+            if (isNaN(date.getTime())) {
+                return dateString.toString();
+            }
+
+            const day = date.getDate().toString().padStart(2, '0'); // Luôn 2 chữ số
+            const monthNum = date.getMonth() + 1;
+            const month = monthNum <= 2 ? monthNum.toString().padStart(2, '0') : monthNum.toString(); // 01, 02 hoặc 3-12
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        }
+
+        // Extract province from address
+        function extractProvince(address) {
+            if (!address) return '';
+            const provincePrefixes = ['Tỉnh ', 'Thành phố ', 'TP. ', 'T.P '];
+            const parts = address.split(',');
+            let lastPart = parts[parts.length - 1].trim();
+
+            for (const prefix of provincePrefixes) {
+                if (lastPart.startsWith(prefix)) {
+                    lastPart = lastPart.substring(prefix.length).trim();
+                    break;
+                }
+            }
+
+            return lastPart;
+        }
+
+        // Load data from AppSheet
+        async function loadData() {
+            try {
+                const idDT = getIDFromURL();
+                console.log('🔍 ID_DT từ URL:', idDT, 'Type:', typeof idDT);
+
+                if (!idDT) {
+                    throw new Error('Không tìm thấy ID_DT trong URL');
+                }
+
+                // Lấy TẤT CẢ dữ liệu (không filter ở API)
+                const [daotaoList, donviList, nhansuList] = await Promise.all([
+                    fetchAppSheetData('DAOTAO_TAPHUAN_LX', 'Filter(DAOTAO_TAPHUAN_LX, true)'),
+                    fetchAppSheetData('THONGTINDONVI', 'Filter(THONGTINDONVI, true)'),
+                    fetchAppSheetData('THONGTINNHANSU', 'Filter(THONGTINNHANSU, true)')
+                ]);
+
+                console.log('📊 Tổng số bản ghi đào tạo:', daotaoList.length);
+                console.log('📊 Tổng số đơn vị:', donviList.length);
+                console.log('📊 Tổng số nhân sự:', nhansuList.length);
+
+                // Log tất cả ID_DT để debug
+                console.log('📋 Danh sách ID_DT trong database:');
+                daotaoList.slice(0, 10).forEach((item, idx) => {
+                    console.log(`  ${idx + 1}. "${item.ID_DT}" (type: ${typeof item.ID_DT})`);
+                });
+
+                // Filter ở client
+                const filteredDaotao = daotaoList.filter(item => {
+                    const itemId = String(item.ID_DT || '').trim();
+                    const searchId = String(idDT).trim();
+                    return itemId === searchId || itemId.toLowerCase() === searchId.toLowerCase();
+                });
+
+                console.log('✅ Kết quả filter:', filteredDaotao.length, 'record(s)');
+
+                if (!filteredDaotao || filteredDaotao.length === 0) {
+                    console.error('❌ Không tìm thấy ID_DT:', idDT);
+                    console.log('💡 Gợi ý: Kiểm tra lại ID trong URL hoặc trong database');
+                    alert(`Không tìm thấy thông tin đào tạo với ID: ${idDT}\n\nVui lòng kiểm tra lại URL hoặc dữ liệu trong AppSheet.`);
+                    throw new Error(`Không tìm thấy thông tin đào tạo với ID: ${idDT}`);
+                }
+
+                const daotaoData = filteredDaotao[0];
+                console.log('📄 Dữ liệu đào tạo tìm thấy:', daotaoData);
+
+                const donviData = donviList.length > 0 ? donviList[0] : {};
+                console.log('🏢 Thông tin đơn vị:', donviData);
+
+                // Tìm thông tin nhân sự dựa vào Ref_LaiXe
+                const nhansuData = nhansuList.find(ns => ns.IDNS === daotaoData.Ref_LaiXe) || {};
+                console.log('👤 Thông tin nhân sự (Ref_LaiXe=' + daotaoData.Ref_LaiXe + '):', nhansuData);
+
+                // Get current date
+                const currentDate = getDateComponents();
+
+                // Lưu dữ liệu cho xuất Word
+                globalCertificateData = {
+                    // Từ bảng DAOTAO_TAPHUAN_LX
+                    ID_DT: daotaoData.ID_DT || '',
+                    SoGCN: daotaoData.SoGCN || '',
+                    DonViToChuc: daotaoData.DonViToChuc || donviData.Tendonvi || '',
+
+                    // Từ bảng THONGTINNHANSU (qua Ref_LaiXe)
+                    Hoten: nhansuData.Hoten || '',
+                    Ngaysinh: formatDateShort(nhansuData.Ngaysinh || ''),
+                    Diachidaydu: nhansuData.Diachidaydu || '',
+                    NoCCCD: nhansuData.NoCCCD || '',
+
+                    // Từ bảng THONGTINDONVI
+                    Nguoidaidien: donviData.Nguoidaidien || '',
+                    Tinh: extractProvince(donviData.Diachi),
+
+                    // Date components cho ngày ký
+                    Ngay: currentDate.day,
+                    Thang: currentDate.month,
+                    Nam: currentDate.year,
+
+                    // Các trường format dd/mm/yyyy cho template Word
+                    ThoiGianToChuc_Tungay: formatDateShort(daotaoData.ThoiGianToChuc_Tungay),
+                    ThoiGianToChuc_Denngay: formatDateShort(daotaoData.ThoiGianToChuc_Denngay),
+                    ThoiHanGCN: formatDateShort(daotaoData.ThoiHanGCN)
+                };
+
+                console.log('📋 Dữ liệu cuối cùng cho template:', globalCertificateData);
+
+                // Populate HTML với dữ liệu
+                populateHTML(globalCertificateData);
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                hideLoadingMessage();
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        // Populate HTML with data
+        function populateHTML(data) {
+            const setText = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value || '';
+                }
+            };
+
+            setText('don-vi-to-chuc', data.DonViToChuc);
+            setText('so-gcn', data.SoGCN);
+            setText('ho-ten', data.Hoten);
+            setText('ngay-sinh', data.Ngaysinh);
+            setText('dia-chi', data.Diachidaydu);
+            setText('no-cccd', data.NoCCCD);
+            setText('don-vi-to-chuc-2', data.DonViToChuc);
+            setText('tu-ngay', data.ThoiGianToChuc_Tungay);
+            setText('den-ngay', data.ThoiGianToChuc_Denngay);
+            setText('tinh', data.Tinh);
+            setText('ngay', data.Ngay);
+            setText('thang', data.Thang);
+            setText('nam', data.Nam);
+            setText('hieu-luc-gcn', data.ThoiHanGCN);
+            setText('nguoi-dai-dien', data.Nguoidaidien);
+        }
+
+        // Export to Word template
+        async function exportToWordTemplate() {
+            try {
+                if (!globalCertificateData) {
+                    alert('Dữ liệu chưa được tải. Vui lòng đợi dữ liệu tải xong.');
+                    return;
+                }
+
+                document.getElementById('loading-message').style.display = 'block';
+                document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
+
+                // URL template 
+                const templateUrl = 'templates/gcntaphuan_template.docx';
+
+                const response = await fetch(templateUrl);
+                if (!response.ok) {
+                    throw new Error('Không thể tải template Word');
+                }
+
+                const templateContent = await response.arrayBuffer();
+                const zip = new PizZip(templateContent);
+
+                const doc = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                });
+
+                doc.setData(globalCertificateData);
+                doc.render();
+
+                const blob = doc.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                });
+
+                const fileName = `GCN_TapHuan_${globalCertificateData.SoGCN || globalCertificateData.ID_DT || 'Document'}.docx`;
+                saveAs(blob, fileName);
+
+                hideLoadingMessage();
+
+            } catch (error) {
+                console.error('❌ Lỗi xuất file Word:', error);
+                alert('Có lỗi xảy ra khi xuất file Word: ' + error.message);
+                hideLoadingMessage();
+            }
+        }
+
+        // Hide loading message
+        function hideLoadingMessage() {
+            document.getElementById('loading-message').classList.add('hidden');
+        }
+
+        // Initialize application
+        async function initialize() {
+            try {
+                const idDT = getIDFromURL();
+                if (!idDT) {
+                    alert('Vui lòng cung cấp ID_DT trong URL. Ví dụ: ?ID_DT=DT001');
+                    return;
+                }
+                await loadData();
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                alert('Không thể kết nối với hệ thống. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                initialize();
+            }, 500);
+        });
+
+        // Disable right-click and F12
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        }, false);
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        };
+    </script>
+</body>
+
+</html>
