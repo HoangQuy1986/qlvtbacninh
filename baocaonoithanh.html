@@ -1471,7 +1471,16 @@
         const formatDate = (dateString) => {
             if (!dateString) return '';
             try {
-                return new Date(dateString).toLocaleDateString('vi-VN');
+                const date = new Date(dateString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+
+                // Tháng 1, 2: có số 0 đằng trước
+                // Tháng 3-12: không có số 0 đằng trước
+                const monthStr = month <= 2 ? String(month).padStart(2, '0') : String(month);
+
+                return `${day}/${monthStr}/${year}`;
             } catch {
                 return dateString;
             }
@@ -3111,6 +3120,30 @@
             else exportSucKhoeToExcel();
         }
 
+        // Thêm hàm helper mới để tự động điều chỉnh độ rộng cột Excel:
+        function autoFitColumns(worksheet, data) {
+            const colWidths = {};
+
+            // Tính độ rộng dựa trên tiêu đề
+            Object.keys(data[0] || {}).forEach(key => {
+                colWidths[key] = key.length;
+            });
+
+            // Tính độ rộng dựa trên nội dung
+            data.forEach(row => {
+                Object.keys(row).forEach(key => {
+                    const cellValue = String(row[key] || '');
+                    colWidths[key] = Math.max(colWidths[key] || 0, cellValue.length);
+                });
+            });
+
+            // Áp dụng độ rộng (với padding thêm 2 ký tự)
+            worksheet['!cols'] = Object.keys(colWidths).map(key => ({
+                wch: Math.min(colWidths[key] + 2, 50) // Giới hạn tối đa 50 ký tự
+            }));
+        }
+
+
         function exportPhuHieuToExcel() {
             const data = state.PH.filteredData.map((item, i) => ({
                 'STT': i + 1,
@@ -3118,13 +3151,15 @@
                 'Loại phù hiệu': item.Loaiphuhieu || '',
                 'Biển số xe': item.BienSoXe || '',
                 'Tuyến': item.TenTuyen || '',
-                'Ngày cấp': item.Ngaycap || '',
-                'Ngày hết hạn': item.Ngayhethan || '',
+                'Ngày cấp': formatDate(item.Ngaycap),
+                'Ngày hết hạn': formatDate(item.Ngayhethan),
                 'Trạng thái': getStatusTextPH(item),
                 'Ghi chú': item.Ghichu || ''
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách phù hiệu');
 
@@ -3136,9 +3171,10 @@
                 ['Hết hiệu lực:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Hết hiệu lực').length],
                 ['Bị thu hồi:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Bị thu hồi').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-phu-hieu-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -3150,14 +3186,16 @@
                 'Số GPLX': item.soGPLX || '',
                 'Họ tên': item.Hoten || '',
                 'Hạng': item.Hang || '',
-                'Ngày sinh': item.Ngaysinh || '',
-                'Ngày cấp': item.Ngaycap || '',
-                'Ngày hết hạn': item.Ngayhethan || '',
+                'Ngày sinh': formatDate(item.Ngaysinh),
+                'Ngày cấp': formatDate(item.Ngaycap),
+                'Ngày hết hạn': formatDate(item.Ngayhethan),
                 'Cơ quan cấp': item.Coquancap || '',
                 'Trạng thái': item.Trangthai || ''
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách GPLX');
 
@@ -3169,9 +3207,10 @@
                 ['Sắp hết hạn:', state.GPLX.filteredData.filter(i => i.Trangthai === 'Sắp hết hạn').length],
                 ['Hết hạn:', state.GPLX.filteredData.filter(i => i.Trangthai === 'Hết hạn').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-GPLX-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -3182,7 +3221,7 @@
                 'STT': i + 1,
                 'Mã NV': item.IDNS || '',
                 'Họ tên': item.Hoten || '',
-                'Ngày sinh': item.Ngaysinh || '',
+                'Ngày sinh': formatDate(item.Ngaysinh),
                 'Giới tính': item.Gioitinh || '',
                 'CCCD': item.NoCCCD || '',
                 'Chức vụ': item.Chucvu || '',
@@ -3196,6 +3235,8 @@
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách nhân sự');
 
@@ -3207,9 +3248,10 @@
                 ['Nam:', state.NS.filteredData.filter(i => i.Gioitinh === 'Nam').length],
                 ['Nữ:', state.NS.filteredData.filter(i => i.Gioitinh === 'Nữ').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-nhan-su-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -3220,14 +3262,16 @@
                 'STT': i + 1,
                 'Mã đăng kiểm': item.ID_KiemDinh || '',
                 'Biển số xe': item.BienSoXe || '',
-                'Ngày đăng kiểm': item.Ngaydangkiem || '',
-                'Ngày hết hạn': item.Ngayhethan || '',
+                'Ngày đăng kiểm': formatDate(item.Ngaydangkiem),
+                'Ngày hết hạn': formatDate(item.Ngayhethan),
                 'Cơ quan đăng kiểm': item.CoquanDK || '',
                 'Trạng thái': item.Trangthai || '',
                 'Ghi chú': item.GhiChu || ''
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách đăng kiểm');
 
@@ -3238,9 +3282,10 @@
                 ['Sắp hết hạn:', state.DK.filteredData.filter(i => i.Trangthai === 'Sắp hết hạn').length],
                 ['Hết hạn:', state.DK.filteredData.filter(i => i.Trangthai === 'Hết hạn').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-dang-kiem-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -3252,15 +3297,17 @@
                 'Mã đào tạo': item.ID_DT || '',
                 'Họ tên': item.Hoten || '',
                 'Chương trình': item.ChuongTrinhDaoTao || '',
-                'Từ ngày': item.ThoiGianToChuc_Tungay || '',
-                'Đến ngày': item.ThoiGianToChuc_Denngay || '',
+                'Từ ngày': formatDate(item.ThoiGianToChuc_Tungay),
+                'Đến ngày': formatDate(item.ThoiGianToChuc_Denngay),
                 'Đơn vị tổ chức': item.DonViToChuc || '',
                 'Số GCN': item.SoGCN || '',
-                'Thời hạn GCN': item.ThoiHanGCN || '',
+                'Thời hạn GCN': formatDate(item.ThoiHanGCN),
                 'Trạng thái': item.HieulucGCN || ''
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách tập huấn');
 
@@ -3271,9 +3318,10 @@
                 ['Sắp hết hạn:', state.TH.filteredData.filter(i => i.HieulucGCN === 'Sắp hết hạn').length],
                 ['Hết hiệu lực:', state.TH.filteredData.filter(i => i.HieulucGCN === 'Hết hiệu lực').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-tap-huan-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -3284,8 +3332,8 @@
                 'STT': i + 1,
                 'Mã khám': item.ID_SK || '',
                 'Họ tên': item.Hoten || '',
-                'Ngày khám': item.ThoiGianKiemTra || '',
-                'Thời hạn': item.ThoihanGKSK || '',
+                'Ngày khám': formatDate(item.ThoiGianKiemTra),
+                'Thời hạn': formatDate(item.ThoihanGKSK),
                 'Cơ sở y tế': item.CoSoYTe || '',
                 'Kết quả': item.KetQua || '',
                 'Trạng thái': item.Hieuluc || '',
@@ -3293,6 +3341,8 @@
             }));
 
             const ws = XLSX.utils.json_to_sheet(data);
+            autoFitColumns(ws, data);
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Danh sách khám sức khỏe');
 
@@ -3303,9 +3353,10 @@
                 ['Sắp hết hạn:', state.SK.filteredData.filter(i => i.Hieuluc === 'Sắp hết hạn').length],
                 ['Hết hiệu lực:', state.SK.filteredData.filter(i => i.Hieuluc === 'Hết hiệu lực').length],
                 [''],
-                ['Ngày xuất:', new Date().toLocaleDateString('vi-VN')]
+                ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
             const summaryWs = XLSX.utils.aoa_to_sheet(summary);
+            summaryWs['!cols'] = [{ wch: 25 }, { wch: 15 }];
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Thống kê');
 
             XLSX.writeFile(wb, `Bao-cao-suc-khoe-${new Date().toISOString().split('T')[0]}.xlsx`);
