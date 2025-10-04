@@ -597,7 +597,7 @@
                     IDHoSo: hosoData.IDHoSo || '',
                     SoVanBan: hosoData.SoVanBan || '',
                     Tendonvi: donviData.Tendonvi || '',
-                    Tendonvi_Uper: donviData.Tendonvi || '',
+                    Tendonvi_Uper: (donviData.Tendonvi || '').toUpperCase(),
                     Nguoidaidien: donviData.Nguoidaidien || '',
                     Hoten: nhansuData.Hoten || '',
                     Ngaysinh: formatDateShort(nhansuData.Ngaysinh),

@@ -597,7 +597,7 @@
                     IDHoSo: hosoData.IDHoSo || '',
                     SoVanBan: hosoData.SoVanBan || '',
                     Tendonvi: donviData.Tendonvi || '',
-                    Tendonvi_Uper: donviData.Tendonvi || '',
+                    Tendonvi_Uper: (donviData.Tendonvi || '').toUpperCase(),
                     Nguoidaidien: donviData.Nguoidaidien || '',
                     Hoten: nhansuData.Hoten || '',
                     Ngaysinh: formatDateShort(nhansuData.Ngaysinh),
@@ -637,7 +637,7 @@
                     element.textContent = value || '';
                 }
             };
-            
+
             setText('ten-don-vi-upper', data.Tendonvi_Uper);
             setText('so-van-ban', data.SoVanBan);
             setText('tinh', data.Tinh);
