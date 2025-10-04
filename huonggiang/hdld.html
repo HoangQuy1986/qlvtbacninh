@@ -270,8 +270,7 @@
     <!-- Document Content -->
     <div class="document-header">
         <div class="header-left">
-            <div class="org-name bold">HỢP TÁC XÃ VTTM</div>
-            <div class="org-name bold">NỘI THÀNH</div>
+            <div class="org-name bold" id="ten-don-vi-upper"></div>
             <div class="underline"></div>
             <div>Số: <span id="so-van-ban">...</span></div>
         </div>
@@ -597,7 +596,8 @@
                 globalContractData = {
                     IDHoSo: hosoData.IDHoSo || '',
                     SoVanBan: hosoData.SoVanBan || '',
-                    Tendonvi: donviData.Tendonvi || 'HỢP TÁC XÃ VẬN TẢI THƯƠNG MẠI NỘI THÀNH',
+                    Tendonvi: donviData.Tendonvi || '',
+                    Tendonvi_Uper: donviData.Tendonvi || '',
                     Nguoidaidien: donviData.Nguoidaidien || '',
                     Hoten: nhansuData.Hoten || '',
                     Ngaysinh: formatDateShort(nhansuData.Ngaysinh),
@@ -605,7 +605,7 @@
                     SoGPLX: nhansuData.SoGPLX || '',
                     Diachi: donviData.Diachi || '',
                     Diachidaydu: nhansuData.Diachidaydu || '',
-                    Loaixe:  xeData.Loaixe || '',
+                    Loaixe: xeData.Loaixe || '',
                     Bienso: xeData.Bienso || '',
                     SoDT: donviData.SoDT || '',
                     HangGPLX: nhansuData['Hạng GPLX'] || '',
@@ -637,7 +637,8 @@
                     element.textContent = value || '';
                 }
             };
-
+            
+            setText('ten-don-vi-upper', data.Tendonvi_Uper);
             setText('so-van-ban', data.SoVanBan);
             setText('tinh', data.Tinh);
             setText('ngay', data.Ngay);
