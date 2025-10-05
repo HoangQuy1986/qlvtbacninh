@@ -108,7 +108,7 @@
         <!-- Phù Hiệu Tab Content -->
         <div id="phuHieuContent" class="tab-content">
             <!-- Stats Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white p-4 rounded-lg shadow">
                     <div class="flex items-center">
                         <div class="p-2 bg-blue-100 rounded-full">
@@ -126,7 +126,7 @@
                             <i class="fas fa-check-circle text-green-600"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-600">Còn hiệu lực</p>
+                            <p class="text-sm text-gray-600">Đang hoạt động</p>
                             <p class="text-xl font-semibold text-green-600" id="activeCountPH">0</p>
                         </div>
                     </div>
@@ -148,19 +148,8 @@
                             <i class="fas fa-times-circle text-red-600"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-gray-600">Hết hiệu lực</p>
-                            <p class="text-xl font-semibold text-red-600" id="expiredCountPH">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-orange-100 rounded-full">
-                            <i class="fas fa-ban text-orange-600"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-gray-600">Bị thu hồi</p>
-                            <p class="text-xl font-semibold text-orange-600" id="revokedCountPH">0</p>
+                            <p class="text-sm text-gray-600">Ngừng hoạt động</p>
+                            <p class="text-xl font-semibold text-red-600" id="inactiveCountPH">0</p>
                         </div>
                     </div>
                 </div>
@@ -195,9 +184,9 @@
                         <select id="statusFilterPH"
                             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả</option>
-                            <option value="Còn hiệu lực">Còn hiệu lực</option>
-                            <option value="Hết hiệu lực">Hết hiệu lực</option>
-                            <option value="Bị thu hồi">Bị thu hồi</option>
+                            <option value="Đang hoạt động">Đang hoạt động</option>
+                            <option value="Sắp hết hạn">Sắp hết hạn</option>
+                            <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                         </select>
                     </div>
                     <div>
@@ -2437,7 +2426,12 @@
 
             state.PH.filteredData = state.PH.allData.filter(i => {
                 if (type && i.Loaiphuhieu !== type) return false;
-                if (status && i.TrangthaiPH !== status) return false;
+                // Xử lý trạng thái đúng logic
+                if (status) {
+                    if (status === 'Sắp hết hạn' && !i.isExpiring) return false;
+                    if (status === 'Đang hoạt động' && (i.TrangthaiPH !== 'Đang hoạt động' || i.isExpiring)) return false;
+                    if (status === 'Ngừng hoạt động' && i.TrangthaiPH !== 'Ngừng hoạt động') return false;
+                }
                 if (from && i.Ngaycap && new Date(i.Ngaycap) < new Date(from)) return false;
                 if (to && i.Ngaycap && new Date(i.Ngaycap) > new Date(to)) return false;
                 if (search) {
