@@ -1549,10 +1549,17 @@
                         TenTuyen: tuyenData['Tên tuyến'] || tuyenData.TenTuyen || ''
                     };
 
-                    if (result.Ngayhethan && result.TrangthaiPH === 'Còn hiệu lực') {
+                    // Kiểm tra xem có sắp hết hạn không (trong vòng 30 ngày)
+                    if (result.Ngayhethan) {
                         const daysToExpire = Math.ceil((new Date(result.Ngayhethan) - new Date()) / (1000 * 60 * 60 * 24));
                         result.isExpiring = daysToExpire <= 30 && daysToExpire > 0;
                     }
+
+                    // TrangthaiPH chỉ có "Đang hoạt động" hoặc "Ngừng hoạt động"
+                    if (!result.TrangthaiPH) {
+                        result.TrangthaiPH = 'Đang hoạt động'; // Mặc định nếu không có giá trị
+                    }
+
                     return result;
                 });
 
@@ -1841,10 +1848,9 @@
         function updateStatsPH() {
             const data = state.PH.filteredData;
             document.getElementById('totalCountPH').textContent = data.length;
-            document.getElementById('activeCountPH').textContent = data.filter(i => i.TrangthaiPH === 'Còn hiệu lực' && !i.isExpiring).length;
+            document.getElementById('activeCountPH').textContent = data.filter(i => i.TrangthaiPH === 'Đang hoạt động').length;
+            document.getElementById('inactiveCountPH').textContent = data.filter(i => i.TrangthaiPH === 'Ngừng hoạt động').length;
             document.getElementById('expiringCountPH').textContent = data.filter(i => i.isExpiring).length;
-            document.getElementById('expiredCountPH').textContent = data.filter(i => i.TrangthaiPH === 'Hết hiệu lực').length;
-            document.getElementById('revokedCountPH').textContent = data.filter(i => i.TrangthaiPH === 'Bị thu hồi').length;
         }
 
         function updateStatsGPLX() {
@@ -2045,16 +2051,15 @@
             if (state.PH.charts.status) state.PH.charts.status.destroy();
             const statusCtx = document.getElementById('statusChartPH').getContext('2d');
             const statusData = [
-                data.filter(i => i.TrangthaiPH === 'Còn hiệu lực' && !i.isExpiring).length,
-                data.filter(i => i.isExpiring).length,
-                data.filter(i => i.TrangthaiPH === 'Hết hiệu lực').length,
-                data.filter(i => i.TrangthaiPH === 'Bị thu hồi').length
+                data.filter(i => i.TrangthaiPH === 'Đang hoạt động' && !i.isExpiring).length,
+                data.filter(i => i.TrangthaiPH === 'Ngừng hoạt động').length,
+                data.filter(i => i.isExpiring).length
             ];
             state.PH.charts.status = createDoughnutChart(
                 statusCtx,
-                ['Còn hiệu lực', 'Sắp hết hạn', 'Hết hiệu lực', 'Bị thu hồi'],
+                ['Đang hoạt động', 'Ngừng hoạt động', 'Sắp hết hạn'],
                 statusData,
-                ['#10b981', '#f59e0b', '#ef4444', '#f97316']
+                ['#10b981', '#ef4444', '#f59e0b']
             );
 
             // Type Chart
@@ -2671,15 +2676,15 @@
         function getStatusClassPH(item) {
             if (item.isExpiring) return 'bg-yellow-100 text-yellow-800';
             const classes = {
-                'Còn hiệu lực': 'bg-green-100 text-green-800',
-                'Hết hiệu lực': 'bg-red-100 text-red-800',
-                'Bị thu hồi': 'bg-orange-100 text-orange-800'
+                'Đang hoạt động': 'bg-green-100 text-green-800',
+                'Ngừng hoạt động': 'bg-red-100 text-red-800'
             };
             return classes[item.TrangthaiPH] || 'bg-gray-100 text-gray-800';
         }
 
         function getStatusTextPH(item) {
-            return item.isExpiring ? 'Sắp hết hạn' : item.TrangthaiPH || '';
+            if (item.isExpiring) return 'Sắp hết hạn';
+            return item.TrangthaiPH || 'Đang hoạt động';
         }
 
         function getStatusClassGPLX(item) {
@@ -3166,10 +3171,9 @@
             const summary = [
                 ['THỐNG KÊ TỔNG QUAN'],
                 ['Tổng số phù hiệu:', state.PH.filteredData.length],
-                ['Còn hiệu lực:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Còn hiệu lực' && !i.isExpiring).length],
+                ['Đang hoạt động:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Đang hoạt động').length],
+                ['Ngừng hoạt động:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Ngừng hoạt động').length],
                 ['Sắp hết hạn:', state.PH.filteredData.filter(i => i.isExpiring).length],
-                ['Hết hiệu lực:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Hết hiệu lực').length],
-                ['Bị thu hồi:', state.PH.filteredData.filter(i => i.TrangthaiPH === 'Bị thu hồi').length],
                 [''],
                 ['Ngày xuất:', formatDate(new Date().toISOString())]
             ];
