@@ -530,7 +530,7 @@
             return result;
         }
 
-        // Get current date components (bây giờ lấy từ trường NgayKy của HOSONHANSU nếu có)
+        // Get current date components
         function getCurrentDateComponents(ngayKy) {
             // Nếu truyền vào ngày (ngayKy) thì ưu tiên dùng ngày đó
             if (ngayKy) {
@@ -621,7 +621,7 @@
                 const nhansuData = hosoData.Ref_ThanhVien ?
                     nhansuList.find(n => n.IDNS === hosoData.Ref_ThanhVien) || {} : {};
 
-                const currentDate = getCurrentDateComponents();
+                const currentDate = getCurrentDateComponents(hosoData.NgayKy);
 
                 // Lưu dữ liệu cho xuất Word
                 globalContractData = {
