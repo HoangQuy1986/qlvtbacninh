@@ -471,23 +471,43 @@
         }
 
         // Get current date components
-        function getCurrentDateComponents() {
-            const today = new Date();
-            const day = today.getDate().toString().padStart(2, '0');
-            const month = today.getMonth() + 1;
-            const year = today.getFullYear();
+        function getCurrentDateComponents(ngayKy) {
+            // Nếu truyền vào ngày (ngayKy) thì ưu tiên dùng ngày đó
+            if (ngayKy) {
+                try {
+                    let date = null;
 
-            let formattedMonth;
-            if (month === 1 || month === 2) {
-                formattedMonth = month.toString().padStart(2, '0');
-            } else {
-                formattedMonth = month.toString();
+                    if (typeof ngayKy === 'string' && ngayKy.includes('/')) {
+                        // AppSheet trả về MM/DD/YYYY
+                        const parts = ngayKy.split('/');
+                        if (parts.length === 3) {
+                            const month = parseInt(parts[0], 10);
+                            const day = parseInt(parts[1], 10);
+                            const year = parseInt(parts[2], 10);
+                            date = new Date(year, month - 1, day);
+                        }
+                    } else {
+                        date = new Date(ngayKy);
+                    }
+
+                    if (date && !isNaN(date.getTime())) {
+                        return {
+                            day: date.getDate().toString().padStart(2, '0'),
+                            month: date.getMonth() + 1,
+                            year: date.getFullYear()
+                        };
+                    }
+                } catch (e) {
+                    console.warn('Không parse được NgayKy, sẽ dùng ngày hiện tại', e);
+                }
             }
 
+            // Fallback: ngày hiện tại
+            const today = new Date();
             return {
-                day: day,
-                month: formattedMonth,
-                year: year.toString()
+                day: today.getDate().toString().padStart(2, '0'),
+                month: today.getMonth() + 1,
+                year: today.getFullYear()
             };
         }
 
@@ -529,7 +549,7 @@
                     nhansuList.find(n => n.IDNS === hosoData.Ref_ThanhVien) || {} : {};
 
                 // Get current date components
-                const dateComponents = getCurrentDateComponents();
+                const dateComponents = getCurrentDateComponents(hosoData.NgayKy);
 
                 // Lưu dữ liệu cho xuất Word
                 globalHandoverData = {
