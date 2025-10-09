@@ -108,13 +108,7 @@
 
         .header-left .org-name {
             font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .header-left .underline {
-            border-bottom: 1px solid #000;
-            width: 80px;
-            margin: 2px 0 10px 0;
+            margin-bottom: 10px;
         }
 
         .header-right {
@@ -150,20 +144,46 @@
         .title-main {
             font-size: 18px;
             font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .title-sub {
+            font-size: 14px;
+            font-weight: bold;
             margin-bottom: 15px;
         }
 
-        /* Content styling */
+        /* Legal basis */
+        .legal-basis {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .legal-basis p {
+            margin-bottom: 8px;
+        }
+
+        /* Contract parties */
         .contract-parties {
             margin: 15px 0;
             text-align: justify;
             line-height: 1.6;
         }
 
-        .contract-parties p {
+        .party-section {
+            margin-bottom: 15px;
+        }
+
+        .party-title {
+            font-weight: bold;
             margin-bottom: 8px;
         }
 
+        .party-content p {
+            margin-bottom: 6px;
+        }
+
+        /* Content styling */
         .article {
             margin: 15px 0;
             text-align: justify;
@@ -195,13 +215,12 @@
 
         .sub-title {
             font-weight: bold;
-            font-style: italic;
             margin-bottom: 5px;
         }
 
         .list-item {
             margin-left: 20px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         /* Signature section */
@@ -219,12 +238,12 @@
 
         .signature-title {
             font-weight: bold;
-            margin-bottom: 80px;
+            margin-bottom: 10px;
         }
 
-        .signature-subtitle {
-            font-style: italic;
-            font-size: 12px;
+        .signature-name {
+            font-weight: bold;
+            margin-top: 80px;
         }
 
         @media print {
@@ -271,7 +290,6 @@
     <div class="document-header">
         <div class="header-left">
             <div class="org-name bold" id="ten-don-vi-upper"></div>
-            <div class="underline"></div>
             <div>Số: <span id="so-van-ban">...</span></div>
         </div>
         <div class="header-right">
@@ -286,120 +304,146 @@
 
     <div class="document-title">
         <div class="title-main">HỢP ĐỒNG LAO ĐỘNG</div>
+        <div class="title-sub">Về việc ký kết hợp đồng lao động đối với nhân viên lái xe</div>
+    </div>
+
+    <div class="legal-basis">
+        <p>Căn cứ Bộ Luật Lao động năm 2019 và các văn bản hướng dẫn hiện hành;</p>
+        <p>Và sự thỏa thuận của các bên là:</p>
     </div>
 
     <div class="contract-parties">
-        <p>Chúng tôi gồm một bên là Ông/Bà: <span id="nguoi-dai-dien" class="bold">...</span>. Quốc tịch: Việt Nam</p>
-        <p>Chức vụ: Giám đốc</p>
-        <p>Đại diện cho: <span id="ten-don-vi" class="bold">...</span></p>
-        <p>Địa chỉ: <span id="dia-chi-don-vi">...</span>.</p>
-        <p>Điện thoại: <span id="so-dt">...</span></p>
-        <p style="margin-top: 15px;">Và một bên là Ông/Bà: <span id="ho-ten" class="bold">...</span>. Quốc tịch: Việt Nam
-        </p>
-        <p>Sinh ngày: <span id="ngay-sinh">...</span></p>
-        <p>Nghề nghiệp: Lái xe</p>
-        <p>Số Giấy phép lái xe: <span id="so-gplx">...</span></p>
-        <p>Địa chỉ thường trú: <span id="dia-chi-nhan-su">...</span></p>
-        <p>Số căn cước công dân: <span id="so-cccd">...</span></p>
-        <p style="margin-top: 15px;">Thỏa thuận ký kết hợp đồng lao động và cam kết làm đúng như điều khoản sau đây:</p>
+        <div class="party-section">
+            <div class="party-title">A. NGƯỜI SỬ DỤNG LAO ĐỘNG: <span id="ten-don-vi-a" class="bold">...</span></div>
+            <div class="party-content">
+                <p>Giấy chứng nhận đăng ký kinh doanh số 2301328849 do Phòng Tài chính - Kế hoạch thành phố Bắc Ninh cấp ngày 09/4/2025</p>
+                <p>Địa chỉ: <span id="dia-chi-don-vi">...</span></p>
+                <p>Điện thoại: <span id="so-dt">...</span> Fax:</p>
+                <p>Đại diện: Ông <span id="nguoi-dai-dien">...</span> - Chức vụ: <span id="chuc-vu-nguoi-dai-dien">Giám đốc</span></p>
+            </div>
+        </div>
+
+        <div class="party-section">
+            <div class="party-title">B. NGƯỜI LAO ĐỘNG: ÔNG/BÀ <span id="ho-ten-upper" class="bold">...</span></div>
+            <div class="party-content">
+                <p>Ngày sinh: <span id="ngay-sinh">...</span></p>
+                <p>Địa chỉ: <span id="dia-chi-nhan-su">...</span></p>
+                <p>Căn cước công dân số: <span id="so-cccd">...</span> ngày cấp: <span id="ngay-cap-cccd">...</span></p>
+                <p>Nơi cấp: <span id="noi-cap-cccd">...</span></p>
+            </div>
+        </div>
+
+        <p style="margin-top: 15px;">Sau khi thỏa thuận, hai Bên thống nhất ký Hợp đồng lao động (sau đây gọi là "Hợp đồng") với các điều khoản sau đây:</p>
     </div>
 
     <div class="article">
-        <div class="article-title">Điều 1: Thời hạn và công việc hợp đồng.</div>
+        <div class="article-title">Điều 1. Thời hạn và công việc hợp đồng</div>
         <div class="article-content">
-            <div class="list-item">- Loại hợp đồng lao động: Không xác định thời hạn</div>
-            <div class="list-item">- Từ ngày <span id="ngay-hieu-luc">...</span></div>
-            <div class="list-item">- Địa điểm làm việc: Điều khiển xe <span id="loai-xe">...</span> biển số: <span
-                    id="bien-so">...</span></div>
-            <div class="list-item">- Chức danh chuyên môn: Lái xe hạng <span id="hang-gplx">...</span></div>
-            <div class="list-item">- Chức vụ: <span id="chuc-vu">...</span></div>
-            <div class="list-item">- Công việc phải làm: Thực hiện theo sự điều động, phân công của HTX.</div>
+            <div class="list-item"><strong>-</strong> Loại hợp đồng lao động: Không xác định thời hạn.</div>
+            <div class="list-item"><strong>-</strong> Từ ngày <span id="ngay-hieu-luc">...</span></div>
+            <div class="list-item"><strong>-</strong> Địa điểm làm việc: Điều khiển xe <span id="loai-xe">...</span> biển số: <span id="bien-so">...</span></div>
+            <div class="list-item"><strong>-</strong> Chức danh chuyên môn: Lái xe hạng <span id="hang-gplx">...</span></div>
+            <div class="list-item"><strong>-</strong> Chức vụ: <span id="chuc-vu">...</span>.</div>
+            <div class="list-item"><strong>-</strong> Công việc phải làm: Thực hiện theo sự điều động, phân công của HTX.</div>
         </div>
     </div>
 
     <div class="article">
-        <div class="article-title">Điều 2: Chế độ làm việc:</div>
+        <div class="article-title">Điều 2. Chế độ làm việc</div>
         <div class="article-content">
-            <div class="list-item">- Thời gian làm việc: Theo quy định của Nhà Nước và của đơn vị.</div>
-            <div class="list-item">- Được cấp phát những dụng cụ làm việc gồm: Xe ô tô biển số: <span
-                    id="bien-so-2">...</span></div>
+            <p><strong>1. Thời gian làm việc chính thức:</strong></p>
+            <p>08 giờ/ngày, từ Thứ 2 đến Thứ 7 hàng tuần.</p>
+            <div class="list-item">- Buổi sáng: Từ 8 giờ 00 phút đến 12 giờ 00 phút.</div>
+            <div class="list-item">- Buổi chiều: Từ 13 giờ 00 phút đến 17 giờ 00 phút.</div>
+            <p style="margin-top: 10px;"><strong>2.</strong> Ngoài thời gian làm việc chính thức, theo quy định của Hợp tác xã, người lao động có thể được điều động đột xuất theo yêu cầu của Ban Giám đốc Hợp tác xã.</p>
         </div>
     </div>
 
     <div class="article">
-        <div class="article-title">Điều 3: Nghĩa vụ và quyền lợi của người lao động:</div>
+        <div class="article-title">Điều 3. Nghĩa vụ và quyền lợi của người lao động</div>
 
         <div class="sub-section">
             <div class="sub-title">1. Quyền lợi:</div>
-            <div class="list-item">- Phương tiện đi lại làm việc: Tự túc</div>
-            <div class="list-item">- Mức lương chính hoặc tiền công: 18% doanh thu của xe biển số thực hiện được hàng
-                tháng.</div>
-            <div class="list-item">- Hình thức trả lương: Theo doanh thu.</div>
-            <div class="list-item">- Phụ cấp gồm: Theo doanh thu.</div>
-            <div class="list-item">- Được trả lương vào các ngày: Ngày 30 hàng tháng.</div>
-            <div class="list-item">- Tiền thưởng: Theo doanh thu.</div>
-            <div class="list-item">- Được trang bị bảo hộ lao động gồm: Đồng phục màu xanh.</div>
-            <div class="list-item">- Chế độ nghỉ ngơi (nghỉ hàng tuần, phép năm, lễ, tết,...): Theo quy định của nhà
-                nước và đơn vị.</div>
-            <div class="list-item">- Bảo hiểm xã hội và bảo hiểm Y tế: Lái xe xin đóng theo tự nguyện tại địa phương nơi
-                trú.</div>
-            <div class="list-item">- Chế độ đào tạo: Khi có nhu cầu đi học nâng cao nghề nghiệp Đơn vị bố trí lái xe
-                khác thay thế để được đi học.</div>
+            
+            <p><strong>1.1. Tiền lương và các khoản phụ cấp:</strong> Theo thỏa thuận.</p>
+            
+            <p style="margin-top: 10px;"><strong>1.2. Chế độ nâng lương:</strong></p>
+            <div class="list-item">a) Thời điểm xét nâng lương: Năm năm xét 01(một) lần.</div>
+            <div class="list-item">b) Thời điểm bắt đầu áp dụng mức lương mới: Vào ngày ra quyết định nâng lương.</div>
+            <div class="list-item">c) Điều kiện xem xét nâng lương: Tùy tình hình hoạt động kinh doanh của Hợp tác xã và theo quyết định của Ban lãnh đạo, Hợp tác xã chỉ xem xét nâng lương cho người lao động hoàn thành tốt nhiệm vụ được giao, đã làm việc tại Hợp tác xã đủ thời gian quy định và không vi phạm kỷ luật và/hoặc không trong thời gian xử lý kỷ luật lao động hoặc những trường hợp đặc biệt sẽ được Ban lãnh đạo Hợp tác xã xem xét quyết định nâng lương trước thời hạn.</div>
+            
+            <p style="margin-top: 10px;"><strong>1.3. Khen thưởng:</strong> Tùy tình hình hoạt động kinh doanh của Hợp tác xã và theo quyết định của Ban lãnh đạo.</p>
+            
+            <p style="margin-top: 10px;"><strong>1.4. Hình thức trả lương:</strong> Chuyển khoản hoặc tiền mặt</p>
+            
+            <p style="margin-top: 10px;"><strong>1.5. Chế độ nghỉ ngơi:</strong></p>
+            <div class="list-item">a) Nghỉ hàng tuần: Theo quy định của Hợp tác xã.</div>
+            <div class="list-item">b) Nghỉ hàng năm: Người lao động được ký hợp đồng chính thức và có thâm niên công tác từ đủ 12 (mười hai) tháng trở lên sẽ được nghỉ 12 (mười hai) ngày phép trong năm và vẫn hưởng đầy đủ lương với điều kiện nghỉ phép không quá 02 (hai) ngày liên tiếp và mỗi tháng không quá 02 (hai) ngày phép.</div>
+            <div class="list-item">c) Nghỉ ngày lễ: Các ngày Lễ, Tết theo quy định của Hợp tác xã và Nhà nước.</div>
+            
+            <p style="margin-top: 10px;"><strong>1.6. Chế độ bảo hiểm xã hội:</strong> Theo quy định của Hợp tác xã và Nhà nước.</p>
         </div>
 
         <div class="sub-section">
             <div class="sub-title">2. Nghĩa vụ:</div>
-            <div class="list-item">- Hoàn thành những công việc đã cam kết trong hợp đồng lao động.</div>
-            <div class="list-item">- Chấp hành lệnh điều hành sản xuất - kinh doanh, nội quy kỷ luật lao động, an toàn
-                lao động,...</div>
-            <div class="list-item">- Bồi thường vi phạm và vật chất: Nếu để mất hoặc làm hư hỏng các trang thiết bị trên
-                xe phải bồi thường bằng 100% giá trị để vi phạm để vi phạm giao thông đường bộ tự bỏ tiền nộp phạt, để
-                xảy ra tai nạn giao thông phải chịu trách nhiệm hoàn toàn trước pháp luật.</div>
+            <div class="list-item"><strong>2.1.</strong> Lái xe có trách nhiệm bảo quản, giữ gìn xe ô tô luôn sạch sẽ, sử dụng an toàn, đúng mục đích. Có trách nhiệm tuân thủ Luật giao thông hiện hành và các văn bản hướng dẫn thi hành, thực hiện lộ trình công tác với tinh thần trách nhiệm cao nhất.</div>
+            <div class="list-item"><strong>2.2.</strong> Luôn thể hiện phẩm chất trung thực, thái độ phục vụ niềm nở, lịch sự, nhiệt tình, đảm bảo đáp ứng thời gian công tác khi được điều động đột xuất.</div>
+            <div class="list-item"><strong>2.3.</strong> Hoàn thành những công việc đã cam kết trong hợp đồng lao động này và tất cả các nhiệm vụ trong phạm vi mô tả công việc.</div>
+            <div class="list-item"><strong>2.5.</strong> Các nghĩa vụ khác theo quy định tại nội quy của hợp tác xã.</div>
         </div>
     </div>
 
     <div class="article">
-        <div class="article-title">Điều 4: Nghĩa vụ và quyền hạn của người sử dụng lao động</div>
+        <div class="article-title">Điều 4. Nghĩa vụ và quyền hạn của người sử dụng lao động</div>
 
         <div class="sub-section">
             <div class="sub-title">1. Nghĩa vụ:</div>
-            <div class="list-item">- Bảo đảm việc làm và thực hiện đầy đủ những điều đã cam kết trong hợp đồng lao động.
-            </div>
-            <div class="list-item">- Thanh toán đầy đủ, đúng thời hạn các chế độ và quyền lợi cho người lao động theo
-                hợp đồng lao động, thỏa ước lao động tập thể.</div>
+            <div class="list-item">a) Bảo đảm việc làm và thực hiện đầy đủ những điều đã cam kết trong hợp đồng lao động.</div>
+            <div class="list-item">b) Thanh toán đầy đủ, đúng hạn các chế độ và quyền lợi cho Người lao động theo hợp đồng lao động, nội quy lao động và thỏa thuận lao động tập thể (nếu có).</div>
         </div>
 
         <div class="sub-section">
             <div class="sub-title">2. Quyền hạn:</div>
-            <div class="list-item">- Điều hành người lao động hoàn thành công việc theo hợp đồng (bố trí, điều chuyển,
-                tạm ngừng việc).</div>
-            <div class="list-item">- Tạm hoãn, chấm dứt hợp đồng lao động, kỷ luật người lao động theo quy định của pháp
-                luật, thỏa ước lao động tập thể (nếu có) và nội quy lao động của HTX.</div>
+            <div class="list-item">a) Giao nhiệm vụ và điều hành người lao động hoàn thành công việc theo hợp đồng lao động đã ký kết.</div>
+            <div class="list-item">b) Có quyền điều chuyển tạm thời lao động, ngừng việc thay đổi, tạm hoãn, chấm dứt Hợp đồng lao động, áp dụng các hình thức xử lý kỷ luật, .... đối với người lao động theo nội quy của HTX, thỏa ước lao động tập thể (nếu có) và quy định của Pháp luật hiện hành.</div>
+            <div class="list-item">c) Yêu cầu người lao động cung cấp mọi thông tin liên quan đến công việc của người lao động theo Hợp đồng này.</div>
         </div>
     </div>
 
     <div class="article">
-        <div class="article-title">Điều 5: Điều khoản thi hành:</div>
+        <div class="article-title">Điều 5. Chấm dứt hợp đồng lao động</div>
         <div class="article-content">
-            <div class="list-item">- Những vấn đề về lao động không ghi trong hợp đồng lao động này thì áp dụng quy định
-                của thỏa ước lao động tập thể, trường hợp chưa có thỏa ước lao động tập thể thì áp dụng quy định của
-                pháp luật lao động.</div>
-            <div class="list-item">- Hợp đồng lao động được thành lập 02 bản có giá trị như nhau, mỗi bên giữ 01 bản và
-                có hiệu lực kể từ ngày <span id="ngay-hieu-luc-2">...</span>. Khi hai bên ký kết phụ lục hợp đồng lao
-                động thì nội dung của phụ lục hợp đồng cũng có giá trị như các nội dung của bản hợp đồng lao động này.
-            </div>
-            <p style="margin-top: 10px;">Hợp đồng này làm tại <span id="ten-don-vi-footer" class="bold"></span>.</p>
+            <p><strong>1.</strong> Người lao động và người sử dụng lao động có quyền đơn phương chấm dứt hợp đồng lao động trước hạn và phải tuân thủ theo quy định của Bộ luật Lao động và các quy định của pháp luật hiện hành.</p>
+            <p style="margin-top: 10px;"><strong>2.</strong> Trường hợp người lao động vi phạm nội quy hợp tác xã, vi phạm quy định của pháp luật thì HTX sẽ áp dụng hình thức kỷ luật sa thải theo quy định tại của Bộ luật Lao động và pháp luật hiện hành.</p>
+        </div>
+    </div>
+
+    <div class="article">
+        <div class="article-title">Điều 6. Thỏa thuận khác</div>
+        <div class="article-content">
+            <p><strong>1.</strong> Trong quá trình thực hiện hợp đồng nếu một bên có nhu cầu thay đổi nội dung trong Hợp đồng thì phải báo trước cho bên kia và ký kết bản Phụ lục Hợp đồng theo quy định của pháp luật. Trong thời gian tiến hành thỏa thuận hai Bên vẫn tuân thủ theo Hợp đồng lao động đã ký kết.</p>
+            <p style="margin-top: 10px;"><strong>2.</strong> Người lao động đọc kỹ, hiểu rõ và cam kết thực hiện các điều khoản và quy định ghi tại Hợp đồng này.</p>
+            <p style="margin-top: 10px;"><strong>3.</strong> Trường hợp xảy ra tranh chấp hai Bên sẽ cùng giải quyết thông qua thương lượng, hòa giải trong vòng 30 ngày kể từ ngày xảy ra tranh chấp đó. Nếu không thể hòa giải được, một trong hai Bên có quyền đưa vụ việc ra giải quyết tại Tòa án có thẩm quyền của Việt Nam.</p>
+        </div>
+    </div>
+
+    <div class="article">
+        <div class="article-title">Điều 7. Điều khoản thi hành</div>
+        <div class="article-content">
+            <p><strong>1.</strong> Những vấn đề về lao động không ghi trong Hợp đồng lao động này thì áp dụng theo Thỏa ước lao động tập thể (nếu có), nội quy lao động và pháp luật hiện hành.</p>
+            <p style="margin-top: 10px;"><strong>2.</strong> Hợp đồng này được lập thành 02 (hai) bản có giá trị như nhau, Hành chính nhân sự giữ 01(một) bản, Người lao động giữ 01 (một) bản và có hiệu lực kể từ ngày ký kết hợp đồng.</p>
+            <p style="margin-top: 10px;"><strong>3.</strong> Hợp đồng này được lập ngày <span id="ngay-footer">...</span> tháng <span id="thang-footer">...</span> năm <span id="nam-footer">...</span> tại trụ sở của Hợp tác xã vận tải Gia Linh.</p>
         </div>
     </div>
 
     <div class="signature-section">
         <div class="signature-left">
             <div class="signature-title">NGƯỜI LAO ĐỘNG</div>
-            <div class="signature-subtitle">(Ký, ghi rõ họ tên)</div>
+            <div class="signature-name" id="ho-ten-signature">...</div>
         </div>
         <div class="signature-right">
             <div class="signature-title">NGƯỜI SỬ DỤNG LAO ĐỘNG</div>
-            <div class="signature-subtitle">(Ký, ghi rõ họ tên)</div>
+            <div class="signature-name" id="nguoi-dai-dien-signature">...</div>
         </div>
     </div>
 
@@ -504,9 +548,9 @@
             if (typeof dateString === 'string' && dateString.includes('/')) {
                 const parts = dateString.split('/');
                 if (parts.length === 3) {
-                    const month = parseInt(parts[0]);  // Tháng đầu tiên
-                    const day = parseInt(parts[1]);    // Ngày thứ hai  
-                    const year = parseInt(parts[2]);   // Năm cuối
+                    const month = parseInt(parts[0]);
+                    const day = parseInt(parts[1]);
+                    const year = parseInt(parts[2]);
 
                     date = new Date(year, month - 1, day);
                     console.log('🔍 Parsed from MM/DD/YYYY:', `${month}/${day}/${year} → ${date}`);
@@ -532,13 +576,11 @@
 
         // Get current date components
         function getCurrentDateComponents(ngayKy) {
-            // Nếu truyền vào ngày (ngayKy) thì ưu tiên dùng ngày đó
             if (ngayKy) {
                 try {
                     let date = null;
 
                     if (typeof ngayKy === 'string' && ngayKy.includes('/')) {
-                        // AppSheet trả về MM/DD/YYYY
                         const parts = ngayKy.split('/');
                         if (parts.length === 3) {
                             const month = parseInt(parts[0], 10);
@@ -562,7 +604,6 @@
                 }
             }
 
-            // Fallback: ngày hiện tại
             const today = new Date();
             return {
                 day: today.getDate().toString().padStart(2, '0'),
@@ -598,7 +639,6 @@
                     throw new Error('Không tìm thấy IDHoSo trong URL');
                 }
 
-                // Fetch dữ liệu từ các bảng
                 const [hosoList, donviList, xeList, nhansuList] = await Promise.all([
                     fetchAppSheetData('HOSONHANSU', `Filter(HOSONHANSU, [IDHoSo] = "${idHoSo}")`),
                     fetchAppSheetData('THONGTINDONVI'),
@@ -630,9 +670,13 @@
                     Tendonvi: donviData.Tendonvi || '',
                     Tendonvi_Uper: (donviData.Tendonvi || '').toUpperCase(),
                     Nguoidaidien: donviData.Nguoidaidien || '',
+                    ChucvuNguoidaidien: 'Giám đốc',
                     Hoten: nhansuData.Hoten || '',
+                    Hoten_Uper: (nhansuData.Hoten || '').toUpperCase(),
                     Ngaysinh: formatDateShort(nhansuData.Ngaysinh),
                     SoCCCD: nhansuData.NoCCCD || '',
+                    NgayCapCCCD: formatDateShort(nhansuData.NgayCapCCCD),
+                    NoicapCCCD: nhansuData.NoicapCCCD || 'Cục Cảnh sát ĐKQL cư trú và DLQG về dân cư',
                     SoGPLX: nhansuData.SoGPLX || '',
                     Diachi: donviData.Diachi || '',
                     Diachidaydu: nhansuData.Diachidaydu || '',
@@ -649,7 +693,6 @@
                     Nam: currentDate.year
                 };
 
-                // Populate HTML với dữ liệu
                 populateHTML(globalContractData);
                 hideLoadingMessage();
 
@@ -675,23 +718,27 @@
             setText('ngay', data.Ngay);
             setText('thang', data.Thang);
             setText('nam', data.Nam);
-            setText('nguoi-dai-dien', data.Nguoidaidien);
-            setText('ten-don-vi', data.Tendonvi);
+            setText('ten-don-vi-a', data.Tendonvi_Uper);
             setText('dia-chi-don-vi', data.Diachi);
             setText('so-dt', data.SoDT);
-            setText('ho-ten', data.Hoten);
+            setText('nguoi-dai-dien', data.Nguoidaidien);
+            setText('chuc-vu-nguoi-dai-dien', data.ChucvuNguoidaidien);
+            setText('ho-ten-upper', data.Hoten_Uper);
             setText('ngay-sinh', data.Ngaysinh);
-            setText('so-gplx', data.SoGPLX);
             setText('dia-chi-nhan-su', data.Diachidaydu);
             setText('so-cccd', data.SoCCCD);
+            setText('ngay-cap-cccd', data.NgayCapCCCD);
+            setText('noi-cap-cccd', data.NoicapCCCD);
             setText('ngay-hieu-luc', data.NgayHieuLuc_dai);
-            setText('bien-so', data.Bienso);
             setText('loai-xe', data.Loaixe);
-            setText('bien-so-2', data.Bienso);
+            setText('bien-so', data.Bienso);
             setText('hang-gplx', data.HangGPLX);
             setText('chuc-vu', data.Chucvu);
-            setText('ngay-hieu-luc-2', data.NgayHieuLuc_dai);
-            setText('ten-don-vi-footer', data.Tendonvi);
+            setText('ngay-footer', data.Ngay);
+            setText('thang-footer', data.Thang);
+            setText('nam-footer', data.Nam);
+            setText('ho-ten-signature', data.Hoten);
+            setText('nguoi-dai-dien-signature', data.Nguoidaidien);
         }
 
         // Export to Word template
@@ -705,8 +752,7 @@
                 document.getElementById('loading-message').style.display = 'block';
                 document.getElementById('loading-message').textContent = 'Đang xuất file Word...';
 
-                // URL template cho hợp đồng lao động
-                const templateUrl = 'https://poalninh.github.io/templates/templates/hdld_template.docx';
+                const templateUrl = 'https://poalninh.github.io/templates/templates/hdld_gialinh_template.docx.docx';
 
                 const response = await fetch(templateUrl);
                 if (!response.ok) {
@@ -727,7 +773,7 @@
                     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 });
 
-                const fileName = `HopDongLaoDong_HTX_${globalContractData.Hoten || 'Document'}.docx`;
+                const fileName = `HopDongLaoDong_${globalContractData.Hoten || 'Document'}.docx`;
                 saveAs(blob, fileName);
 
                 hideLoadingMessage();
