@@ -1459,30 +1459,19 @@
 
         const formatDate = (dateString) => {
             if (!dateString) return '';
-
             try {
-                // ✅ Kiểm tra nếu đã là format dd/MM/yyyy rồi thì return luôn
-                if (/^\d{2}\/\d{1,2}\/\d{4}$/.test(dateString)) {
-                    return dateString;
-                }
-
-                // ✅ Parse từ ISO date (yyyy-MM-dd hoặc yyyy-MM-ddTHH:mm:ss)
                 const date = new Date(dateString);
-
-                if (isNaN(date.getTime())) {
-                    return '';
-                }
-
                 const day = String(date.getDate()).padStart(2, '0');
                 const month = date.getMonth() + 1;
                 const year = date.getFullYear();
 
-                // ✅ Giữ nguyên logic tháng của cơ quan (tháng 1,2 có số 0, tháng 3-12 không có)
+                // Tháng 1, 2: có số 0 đằng trước
+                // Tháng 3-12: không có số 0 đằng trước
                 const monthStr = month <= 2 ? String(month).padStart(2, '0') : String(month);
 
                 return `${day}/${monthStr}/${year}`;
             } catch {
-                return '';
+                return dateString;
             }
         };
 
