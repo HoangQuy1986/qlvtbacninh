@@ -1591,7 +1591,8 @@
                     const result = {
                         ...item,
                         Hoten: ns.Hoten || item.Scan_Hoten || '',
-                        Gioitinh: ns.Gioitinh || ''
+                        Gioitinh: ns.Gioitinh || '',
+                        Ngaysinh: ns.Ngaysinh || item.Ngaysinh || '' 
                     };
 
                     if (!result.Ngayhethan) {
